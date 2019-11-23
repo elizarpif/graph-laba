@@ -661,8 +661,9 @@ public class Form extends JFrame {
                 int ind = tabPanel.getSelectedIndex();
                 boolean isReal = graph.elementAt(ind).BFS();
                 if (!isReal) {
-                    System.out.println("укажите 2 вершины пжлст");
+                    System.out.println("BFS не возможен для 2х вершин в данном графе");
                 }
+               // System.out.println("max val"+Integer.MAX);
             }
         });
 

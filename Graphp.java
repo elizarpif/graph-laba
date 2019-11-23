@@ -56,11 +56,13 @@ public class Graphp {
         Object g2 = vs[1];
         if (((mxCell) g1).isVertex() && ((mxCell) g2).isVertex()) {
             Object[] verts = gadap.getChildVertices(gadap.getDefaultParent());
+
             ArrayList<Object> vertices = new ArrayList<>();
             Collections.addAll(vertices, verts);
             int v1 = vertices.indexOf(g1);
             int v2 = vertices.indexOf(g2);
             ArrayList<ArrayList<Integer>> matr = getAdjacencyMatrix();
+
             ArrayList<Integer> result_verts = algorithm.BFS(v1, v2, matr);
             for (int i = 0; i < result_verts.size() - 1; i++) {
                 Object i1 = vertices.get(result_verts.get(i));
