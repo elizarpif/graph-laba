@@ -32,6 +32,58 @@ public class func {
             }
         }
         for_answ = new ArrayList<Integer>();
-        return for_answ;                                                                        //а вот как вернуть то что путь не был найен я не придумал)
+        return for_answ;                                                                   
+    }
+    
+    
+    public int[] Deikstra(int start, ArrayList<ArrayList<Integer>> matrix) {
+
+        int INFINITY = Integer.MAX_VALUE/2;
+        int MatrixSize = matrix.get(0).size();
+        boolean[] Visited = new boolean[MatrixSize];
+        int[] Distance = new int[MatrixSize];
+
+        fill(Distance, INFINITY, start);
+
+
+        for(int i = 0; i < MatrixSize; i++)
+        {
+            int Vdis = -1;
+
+            for(int NVdis = 0; NVdis < MatrixSize; NVdis++)
+                if(!Visited[NVdis] && Distance[NVdis] < INFINITY
+                        && (Vdis == -1 || Distance[Vdis] > Distance[NVdis]))
+                    Vdis = NVdis;
+
+                if(Vdis == -1) break;
+                Visited[Vdis] = true;
+
+                for(int NVdis = 0; NVdis < MatrixSize; NVdis++)
+                    if (!Visited[NVdis] && matrix.get(Vdis).get(NVdis) < INFINITY &&
+                        matrix.get(Vdis).get(NVdis) != 0)
+                        Distance[NVdis] = (Distance[NVdis] < Distance[Vdis] +
+                                matrix.get(Vdis).get(NVdis))?Distance[NVdis]:
+                                Distance[Vdis]+matrix.get(Vdis).get(NVdis);
+
+        }
+        return  Distance;
+    }
+
+    public int[][] DeikstraMatrix(ArrayList<ArrayList<Integer>> matrix){
+        int MatrixSize = matrix.get(0).size();
+        int[][] for_result = new int[MatrixSize][MatrixSize];
+        for(int i = 0; i < MatrixSize; i++)
+            for_result[i] = Deikstra(i, matrix);
+
+        return for_result;
+    }
+    
+  
+    /*----------------------------------------------------------------------------------------------------------Цэ-кит----*/
+    //Служебные функции пусть будут туть
+    public void fill(int[] a, int b, int excomunicato){
+        for(int i = 0; i < a.length; i++)
+            a[i] = b;
+        a[excomunicato] = 0;
     }
 }
