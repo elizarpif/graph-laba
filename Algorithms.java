@@ -1,6 +1,8 @@
+package com.company;
+
 import java.util.ArrayList;
 
-public class func {
+public class Algorithms {
     public ArrayList<Integer> BFS(int first, int last, ArrayList<ArrayList<Integer>> matrix){   //номер вершины откуда начинаем, где заканчиваем и сам
                                                                                                 //и матрица инцидентности
         int size_mat = matrix.get(0).size();                                                    //размерность матрицы
@@ -19,7 +21,7 @@ public class func {
             first = queue[queueHead++];                                                         //обрабатываем то что находится в очереди первым
 
             for(int i = 0; i < size_mat; i++) {                                                 //проходимся по всем элементам матрицы смежности
-                if (!used[i] && matrix.get(first).get(i) == 1) {                                //проверяем были ли там уже и является ли вершина смежной
+                if (!used[i] && matrix.get(first).get(i) != 0) {                                //проверяем были ли там уже и является ли вершина смежной
                     if(i == last) {                                                             //если можем попасть в конечную вершину
                         for (int j = 1; j < queueHead; j++)
                             for_answ.add(queue[j]);                                             //записываем что было в очереди и ответ
@@ -32,6 +34,6 @@ public class func {
             }
         }
         for_answ = new ArrayList<Integer>();
-        return for_answ;                                                                        //а вот как вернуть то что путь не был найен я не придумал)
+        return for_answ;                                                                  //а вот как вернуть то что путь не был найен я не придумал)
     }
 }

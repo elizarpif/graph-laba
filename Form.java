@@ -180,7 +180,7 @@ public class Form extends JFrame {
                 try {
                     int ind = tabPanel.getSelectedIndex();
                     graph.get(ind).undo();
-                  //  graph.get(ind).composeCircle();
+                    //  graph.get(ind).composeCircle();
                 } catch (Exception err) {
                     // err.printStackTrace();
                 }
@@ -542,6 +542,7 @@ public class Form extends JFrame {
         setJMenuBar(menuBar);
 
     }
+
     // фунция для установки стиля для выбранной вершины
     public void setStyleListener(JMenuItem StyleC, int choiceStyle) {
         StyleC.addMouseListener(new MouseAdapter() {
@@ -570,6 +571,7 @@ public class Form extends JFrame {
                 int index = tabPanel.getSelectedIndex();
                 Color color = JColorChooser.showDialog(null, "Choose a color", Color.RED);
                 String hex = "#" + Integer.toHexString(color.getRGB()).substring(2);
+                System.out.println("hex =" + hex);
                 graph.elementAt(index).SetColorEdge(x, y, hex);
             }
         });
@@ -650,6 +652,20 @@ public class Form extends JFrame {
             }
         });
 
+        JMenuItem BFSsearch = new JMenuItem("BFS");
+        BFSsearch.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                System.out.println("HERE!!!!!!!");
+                int ind = tabPanel.getSelectedIndex();
+                boolean isReal = graph.elementAt(ind).BFS();
+                if (!isReal) {
+                    System.out.println("укажите 2 вершины пжлст");
+                }
+            }
+        });
+
         JMenuItem deleteEItem = new JMenuItem("Удалить ребро");
 
         deleteEItem.addMouseListener(new MouseAdapter() {
@@ -705,6 +721,7 @@ public class Form extends JFrame {
         popupV.add(StyleVMenu);
         popupV.add(ColorVItem);
         popupV.add(addLoop);
+        popupV.add(BFSsearch);
 
         mxGraphComponent gc = graph.elementAt(tabPanel.getSelectedIndex()).getComp();
 
