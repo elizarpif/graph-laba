@@ -49,7 +49,7 @@ public class Graphp {
         // граф "изнутри"
         g = new DefaultDirectedWeightedGraph(DefaultEdge.class);//SimpleGraph<>(DefaultEdge.class);
 
-        i = 0;
+        i = 0; // счетчик вершин
         graphmatrix = matr;
         graph = new DefaultListenableGraph(g); //  оболочка для графа, позволяющая отслеживать события вроде добавления ребра
         gadap = new JGraphXAdapter(graph); // оболочка для отрисовки графа
@@ -97,7 +97,6 @@ public class Graphp {
                 updateTable();
                 isSave = false;
             }
-
         }
     }
 
@@ -114,13 +113,16 @@ public class Graphp {
             graphmatrix.get(tabindex).setDataVector(data, new Object[data[0].length]);
             table.setModel(graphmatrix.get(tabindex));
         } else {
-            table.remove(0); //не особо работает
+            Object[][] data = new Object[0][0];
+            graphmatrix.get(tabindex).setDataVector(data, new Object[0]);
+            table.setModel(graphmatrix.get(tabindex));
         }
     }
     // скомпоновать параллельные ребра
     public void composeParallel() {
         isUndo = false;
         layoutParallel.execute(graphcomp.getGraph().getDefaultParent());
+        SetStyle(gadap);
         updateTable();
         isUndo = true;
     }
@@ -128,6 +130,7 @@ public class Graphp {
     public void composeCircle() {
         isUndo = false;
         layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
+        SetStyle(gadap);
         updateTable();
         isUndo = true;
     }
@@ -143,12 +146,14 @@ public class Graphp {
     // go to one step back
     public void undo() {
         undoManager.undo();
+        updateTable();
         isSave = false;
     }
 
     // go to one step front
     public void redo() {
         undoManager.redo();
+        updateTable();
         isSave = false;
     }
 
@@ -182,14 +187,12 @@ public class Graphp {
         }
         graph = new DefaultListenableGraph(gg);
         gadap = new JGraphXAdapter(graph);
-        SetStyle(gadap);
         graphcomp.setGraph(gadap);
-        setDefaultStyles();
-
         // ниже костыль для размера вершин!
         RedrawVertexSize();
         layoutParallel = new mxParallelEdgeLayout(gadap);
         layoutCircle = new mxCircleLayout(gadap);
+        setDefaultStyles();
         updateGraph();
         isUndo = true;
     }
@@ -238,22 +241,13 @@ public class Graphp {
     // отрисовка из файла вершин .vert
     public void fromVertString(ArrayList<ArrayList<String>> inp) {
         isUndo = false;
-        Graph<String, MyEdge> gg = new DefaultDirectedWeightedGraph(MyEdge.class);
-
-        graph = new DefaultListenableGraph(gg);
-        gadap = new JGraphXAdapter(graph);
         for (int ii = 0; ii < inp.size(); ii++) {
             System.out.println(inp.get(ii).get(0));
             int x = Integer.valueOf(inp.get(ii).get(1));
             int y = Integer.valueOf(inp.get(ii).get(2));
             gadap.insertVertex(null, null, inp.get(ii).get(0), x, y, 50, 50);
         }
-
-        SetStyle(gadap);
         graphcomp.setGraph(gadap);
-        setDefaultStyles();
-        layoutParallel = new mxParallelEdgeLayout(gadap);
-        layoutCircle = new mxCircleLayout(gadap);
         updateGraph();
         isUndo = true;
     }
@@ -264,7 +258,6 @@ public class Graphp {
         ArrayList<mxCell> vertices = new ArrayList<>();
         for (Object a : verts)
             vertices.add((mxCell) a);
-
         for (mxCell a : vertices) {
             mxGeometry g = (mxGeometry) a.getGeometry().clone();
             g.setHeight(vertexSize);
@@ -297,10 +290,8 @@ public class Graphp {
     //компоновка лаяутов и обновление таблицы
     private void updateGraph(){
         graphcomp.getGraph().getModel().beginUpdate();
-
         layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
         layoutParallel.execute(graphcomp.getGraph().getDefaultParent());
-
         graphcomp.getGraph().getModel().endUpdate();
         graphcomp.refresh();
         updateTable();
