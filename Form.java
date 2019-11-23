@@ -180,7 +180,7 @@ public class Form extends JFrame {
                 try {
                     int ind = tabPanel.getSelectedIndex();
                     graph.get(ind).undo();
-                    graph.get(ind).composeCircle();
+                  //  graph.get(ind).composeCircle();
                 } catch (Exception err) {
                     // err.printStackTrace();
                 }
@@ -193,7 +193,7 @@ public class Form extends JFrame {
                 try {
                     int ind = tabPanel.getSelectedIndex();
                     graph.get(ind).redo();
-                    graph.get(ind).composeCircle();
+                    //graph.get(ind).composeCircle();
                 } catch (Exception err) {
                     // err.printStackTrace();
                 }
@@ -394,13 +394,14 @@ public class Form extends JFrame {
         openItem.setFont(font);
         fileMenu.add(openItem);
 
-        JMenuItem openAdjItem = new JMenuItem("Adjacency matrix");
+        JMenuItem openAdjItem = new JMenuItem("From file");
         openAdjItem.setFont(font);
         openItem.add(openAdjItem);
-        openAdjItem.addActionListener(new ActionListener() {
+        openAdjItem.addActionListener(new ActionListener() {      ////////////////////из файла
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser k = new JFileChooser();
+//                k.showDialog(getParent(), "Выбрать");
                 File f2 = new File(".").getAbsoluteFile();
                 System.out.println("def dir " + f2.toString());
                 k.setCurrentDirectory(f2);
@@ -422,8 +423,9 @@ public class Form extends JFrame {
 
                     DefaultTableModel h = new DefaultTableModel();
                     graphmatrix.add(h);
+                    //создать счетчик вкладок
 
-                    int ind = tabPanel.getTabCount();
+                    int ind = tabPanel.getTabCount();//getSelectedIndex();
                     Graphp tmp = new Graphp(table1, ind, graphmatrix);
                     graph.add(tmp);
                     tabPanel.addTab("graph " + String.valueOf(ind), tmp.getComp());
@@ -431,30 +433,33 @@ public class Form extends JFrame {
                     tabPanel.setSelectedIndex(ind);
                     setPopupMenu();
                     String input = "";
-                    ArrayList<ArrayList> inp = new ArrayList<>();
-                    // тут выполняется чтение из файла матрицы смежности
+                    ArrayList<ArrayList<String>> inp = new ArrayList<>();
                     try {
                         BufferedReader objReader = new BufferedReader(new FileReader(filepath));
 
                         while ((strCurrentLine = objReader.readLine()) != null) {
-                            if (ext1.equals("adj") || ext1.equals("inc")) {
+                            if (ext1.equals("adj") || ext1.equals("inc") || ext1.equals("vert") || ext1.equals("edg")) {
                                 if (strCurrentLine.contains("%")) {
                                     int index = strCurrentLine.indexOf("%");
                                     strCurrentLine = strCurrentLine.substring(0, index);
 
                                 }
                                 input += strCurrentLine + "\n";
-                            }
-                            if (ext1.equals("inc")) {
-                                if (strCurrentLine.contains("%")) {
-                                    int index = strCurrentLine.indexOf("%");
-                                    strCurrentLine = strCurrentLine.substring(0, index);
+                                if (ext1.equals("inc")) {
+                                    String str[] = strCurrentLine.split(",");
+                                    ArrayList<String> al = new ArrayList<String>(Arrays.asList(str));
+                                    inp.add(al);
                                 }
-                                String str[] = strCurrentLine.split(",");
-                                ArrayList<String> all = new ArrayList<>(Arrays.asList(str));
-                                //all =  Arrays.asList(str);
-                                inp.add(all);
+                                if (ext1.equals("vert") || ext1.equals("edg")) {
+                                    String s = strCurrentLine.replaceAll("\\(", " ");
+                                    s = s.replaceAll("\\)", " ");
+                                    s = s.replaceAll(",", " ");
+                                    String str[] = s.split(" ");
+                                    ArrayList<String> al = new ArrayList<String>(Arrays.asList(str));
+                                    inp.add(al);
+                                }
                             }
+
                             System.out.println(strCurrentLine);
                         }
                     } catch (IOException ex) {
@@ -464,10 +469,18 @@ public class Form extends JFrame {
                         graph.get(ind).fromAdjacencyMatrixString(input);
                     }
                     if (ext1.equals("inc")) {
-                        //graph.get(ind).fromIncMatrixString(input);
+                        graph.get(ind).fromIncMatrixString(inp);
+                    }
+                    if (ext1.equals("vert")) {
+                        graph.get(ind).fromVertString(inp);
+
+                    }
+                    if (ext1.equals("edg")) {
+                        graph.get(ind).fromEdgString(inp);
                     }
 
                 }
+
             }
         });
 

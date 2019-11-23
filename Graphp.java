@@ -55,7 +55,7 @@ public class Graphp {
         gadap = new JGraphXAdapter(graph); // оболочка для отрисовки графа
 
         graphcomp = new mxGraphComponent(gadap); // штука для визуальъизации графа, отличается от предыдущей добавлением полезных фич
-       // например, позволяет применить стиль ребра после загрузки из файла, применить цвет к вершине м прочие мелочи
+        // например, позволяет применить стиль ребра после загрузки из файла, применить цвет к вершине м прочие мелочи
         tabindex = index;
         table = t;
         setDefaultStyles();
@@ -93,7 +93,7 @@ public class Graphp {
         @Override
         public void invoke(Object o, mxEventObject mxEventObject) {
             if (isUndo) { // если это действие пользователя, то сохранять следующий шаг в истории
-               //System.out.println("event is "+mxEventObject.ge);
+                //System.out.println("event is "+mxEventObject.ge);
                 undoManager.undoableEditHappened((mxUndoableEdit) mxEventObject.getProperty("edit"));
                 System.out.println(" in indo manager!");
                 // обновить таблицу смежности
@@ -103,6 +103,7 @@ public class Graphp {
 
         }
     }
+
     // обновление таблицы смежности
     private void updateTable() {
         ArrayList<ArrayList<Integer>> matr = getAdjacencyMatrix();
@@ -115,7 +116,7 @@ public class Graphp {
                     data[i][j] = matr.get(i).get(j);
             graphmatrix.get(tabindex).setDataVector(data, new Object[data[0].length]);
             table.setModel(graphmatrix.get(tabindex));
-        } else{
+        } else {
             table.remove(0); //не особо работает
         }
     }
@@ -154,6 +155,7 @@ public class Graphp {
         undoManager.redo();
         isSave = false;
     }
+
     // импортер из файла, конструктор импортера
     public <E> CSVImporter<String, E> createImporter(
             Graph<String, E> gg, CSVFormat format, Character delimiter) {
@@ -190,6 +192,172 @@ public class Graphp {
         SetStyle(gadap);
         graphcomp.setGraph(gadap);
         setDefaultStyles();
+
+
+        // ниже костыль для размера вершин!
+        RedrawVertexSize();
+
+
+        graphcomp.getGraph().getModel().beginUpdate();
+        layoutParallel = new mxParallelEdgeLayout(gadap);//mxParallelEdgeLayout(gadap);
+        layoutCircle = new mxCircleLayout(gadap);
+        layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
+        layoutParallel.execute(graphcomp.getGraph().getDefaultParent());
+
+        graphcomp.getGraph().getModel().endUpdate();
+        graphcomp.refresh();
+        isUndo = true;
+
+
+    }
+
+    public void fromEdgString(ArrayList<ArrayList<String>> inp) {
+        System.out.println("Vertex:" + inp.toString());
+        Graph<String, MyEdge> gg = new DefaultDirectedWeightedGraph(MyEdge.class);
+
+        isUndo = false;
+        graph = new DefaultListenableGraph(gg);
+        gadap = new JGraphXAdapter(graph);
+
+        ArrayList<Object> vertices = new ArrayList<>();
+        for (int ii = 0; ii < inp.size(); ii++) {
+            System.out.println(inp.get(ii).get(0));
+            int a = Integer.valueOf(inp.get(ii).get(1));
+            int k = Integer.valueOf(inp.get(ii).get(2));
+            int l = Integer.valueOf(inp.get(ii).get(3));
+            int d = Integer.valueOf(inp.get(ii).get(4));
+            String aa = inp.get(ii).get(1);
+            String kk = inp.get(ii).get(2);
+            String ll = inp.get(ii).get(3);
+            String dd = inp.get(ii).get(4);
+            System.out.println(gadap.getCellToVertexMap());
+
+            Object[] verts = gadap.getChildVertices(gadap.getDefaultParent());
+
+            ArrayList<Object> v = new ArrayList<>();
+            Collections.addAll(v, verts);
+            ArrayList<String> existcaptions = new ArrayList<>();
+            for (Object ab : v) {
+                mxCell cell = (mxCell) ab;
+                existcaptions.add(cell.getValue().toString());
+            }
+            Object v1;
+            Object v2;
+            if (existcaptions.contains(kk)) {
+                v1 = v.get(existcaptions.indexOf(kk));
+            } else
+                v1 = gadap.insertVertex(null, null, kk, 20, 20, 50, 50);
+
+            if (existcaptions.contains(ll)) {
+                v2 = v.get(existcaptions.indexOf(ll));
+            } else
+                v2 = gadap.insertVertex(null, null, ll, 120, 70, 50, 50);
+
+
+           Object edge = gadap.insertEdge(null, null, aa, v1, v2, null);
+            if (dd.equals("0")) {
+                gadap.setCellStyles(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_CONNECTOR, new Object[]{edge});
+                gadap.setCellStyles(mxConstants.STYLE_ENDARROW, "ss", new Object[]{edge});
+
+            }
+            //gadap.insertEdge(null,null,aa,kk,ll);/////////////
+        }
+
+        System.out.println(graph.edgeSet().toString() + " in graph");
+
+        SetStyle(gadap);
+        graphcomp.setGraph(gadap);
+        setDefaultStyles();
+        layoutParallel = new mxParallelEdgeLayout(gadap);//mxParallelEdgeLayout(gadap);
+        // layoutCircle = new mxCircleLayout(gadap);
+        graphcomp.getGraph().getModel().beginUpdate();
+
+        //layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
+        layoutParallel.execute(graphcomp.getGraph().getDefaultParent());
+
+        graphcomp.getGraph().getModel().endUpdate();
+        graphcomp.refresh();
+        updateTable();
+        isUndo = true;
+    }
+
+    public void fromVertString(ArrayList<ArrayList<String>> inp) {
+        System.out.println("Vertex:" + inp.toString());
+        isUndo = false;
+        Graph<String, MyEdge> gg = new DefaultDirectedWeightedGraph(MyEdge.class);
+
+
+        graph = new DefaultListenableGraph(gg);
+        gadap = new JGraphXAdapter(graph);
+        for (int ii = 0; ii < inp.size(); ii++) {
+            System.out.println(inp.get(ii).get(0));
+            int x = Integer.valueOf(inp.get(ii).get(1));
+            int y = Integer.valueOf(inp.get(ii).get(2));
+            gadap.insertVertex(null, null, inp.get(ii).get(0), x, y, 50, 50);
+        }
+
+        System.out.println(graph.edgeSet().toString() + " in graph");
+
+        SetStyle(gadap);
+        graphcomp.setGraph(gadap);
+        setDefaultStyles();
+        layoutParallel = new mxParallelEdgeLayout(gadap);//mxParallelEdgeLayout(gadap);
+        // layoutCircle = new mxCircleLayout(gadap);
+        graphcomp.getGraph().getModel().beginUpdate();
+
+        //layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
+        layoutParallel.execute(graphcomp.getGraph().getDefaultParent());
+
+        graphcomp.getGraph().getModel().endUpdate();
+        graphcomp.refresh();
+        updateTable();
+        isUndo = true;
+    }
+
+    private void RedrawVertexSize(){
+        Object[] verts = gadap.getChildVertices(gadap.getDefaultParent());
+        ArrayList<mxCell> vertices = new ArrayList<>();
+        for (Object a : verts)
+            vertices.add((mxCell) a);
+
+        for (mxCell a : vertices) {
+            mxGeometry g = (mxGeometry) a.getGeometry().clone();
+            g.setHeight(vertexSize);
+            g.setWidth(vertexSize);
+            gadap.cellsResized(new Object[]{a}, new mxRectangle[]{g});
+        }
+        i = vertices.size();
+    }
+
+    public void fromIncMatrixString(ArrayList<ArrayList<String>> inp) {
+        System.out.println("Matrix:" + inp.toString());
+        isUndo = false;
+        Graph<String, MyEdge> gg = new Multigraph<>(MyEdge.class);
+        for (int ii = 1; ii < inp.get(0).size()+1; ii++) {
+            gg.addVertex(String.valueOf(ii));
+            System.out.println("Create:"+String.valueOf(ii));
+        }
+
+        for (int ii = 0; ii < inp.size(); ii++) {
+            System.out.println("Here:" + inp.get(ii));
+            String v = String.valueOf(inp.get(ii).indexOf("1") + 1);
+            String v1 = String.valueOf(inp.get(ii).indexOf("-1") + 1);
+            System.out.println("Verrrrrrr:"+v+v1);
+            gg.addEdge(v1, v);
+        }
+
+        graph = new DefaultListenableGraph(gg);
+        gadap = new JGraphXAdapter(graph);
+
+        System.out.println(graph.edgeSet().toString() + " in graph");
+
+        SetStyle(gadap);
+        graphcomp.setGraph(gadap);
+        setDefaultStyles();
+        RedrawVertexSize();
+
+        layoutParallel = new mxParallelEdgeLayout(gadap);//mxParallelEdgeLayout(gadap);
+        layoutCircle = new mxCircleLayout(gadap);
         graphcomp.getGraph().getModel().beginUpdate();
 
         layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
@@ -197,80 +365,10 @@ public class Graphp {
 
         graphcomp.getGraph().getModel().endUpdate();
         graphcomp.refresh();
-
-    // ниже костыль для размера вершин!
-        Object[] verts = gadap.getChildVertices(gadap.getDefaultParent());
-        ArrayList<mxCell> vertices = new ArrayList<>();
-        for(Object a: verts)
-            vertices.add((mxCell)a);
-
-        for (mxCell a: vertices){
-            mxGeometry g = (mxGeometry) a.getGeometry().clone();
-            g.setHeight(vertexSize);
-            g.setWidth(vertexSize);
-            gadap.cellsResized(new Object[] { a }, new mxRectangle[] { g });
-        }
-        isUndo = true;
-
-
-    }
-
-    // отрисовка графа из строки файла матрицы инциндентности (пока не работает)
-    public void fromIncMatrixString(String input1) {
-        isUndo = false;
-        Graph<String, DefaultEdge> gg = new DefaultDirectedWeightedGraph(MyEdge.class);
-        input1.replaceAll("-1", "0");
-        CSVImporter<String, DefaultEdge> importer = createImporter(gg, CSVFormat.MATRIX, ',');//';'
-        // importer.setParameter(CSVFormat.Parameter.EDGE_WEIGHTS, true);
-        importer.setParameter(CSVFormat.Parameter.MATRIX_FORMAT_ZERO_WHEN_NO_EDGE, true);
-        try {
-            importer.importGraph(gg, new StringReader(input1));
-        } catch (ImportException e) {
-            e.printStackTrace();
-        }
-
-        //gg.setEdgeWeight("1", "2", 4455);
-        graph = new DefaultListenableGraph(gg);
-        gadap = new JGraphXAdapter(graph);
-
-        System.out.println(graph.edgeSet().toString() + " in graph");
-
-        SetStyle(gadap);
-        graphcomp.setGraph(gadap);
-        setDefaultStyles();
-        graphcomp.getGraph().getModel().beginUpdate();
-        graphcomp.getGraph().getModel().endUpdate();
-        graphcomp.refresh();
-        isUndo = true;
-    }
-    // отрисовка графа из строки файла матрицы инциндентности (пока не работает)
-    public void fromIncMatrixString2(ArrayList<ArrayList> inp) {
-        isUndo = false;
-        System.out.println("int inc matrix" + inp.toString());
-
-        Graph<String, MyEdge> gg = new DefaultDirectedWeightedGraph(MyEdge.class);
-
-        Object[] edges = gg.edgeSet().toArray();
-        for (Object a : edges) {
-            MyEdge e = (MyEdge) a;
-            System.out.println((int) gg.getEdgeWeight(e));
-
-        }
-        //gg.setEdgeWeight("1", "2", 4455);
-        graph = new DefaultListenableGraph(gg);
-        gadap = new JGraphXAdapter(graph);
-
-        System.out.println(graph.edgeSet().toString() + " in graph");
-
-        SetStyle(gadap);
-        graphcomp.setGraph(gadap);
-
-        setDefaultStyles();
-        graphcomp.getGraph().getModel().beginUpdate();
-        graphcomp.getGraph().getModel().endUpdate();
         isUndo = true;
 
     }
+
 
     // добавление вершины
     public void AddVertex(int x, int y) {
@@ -420,10 +518,10 @@ public class Graphp {
         int countEdges = verts.get(row).getEdgeCount();
         // удаляем мульти ребра ()
         Object[] removeObjs = new Object[countEdges];
-        int j=0;
+        int j = 0;
         for (int i = 0; i < countEdges; i++) {
             mxCell sourceEdge = (mxCell) verts.get(row).getEdgeAt(i);
-            if (sourceEdge.getSource() == verts.get(row) && sourceEdge.getTarget().getId() == verts.get(col).getId() ){
+            if (sourceEdge.getSource() == verts.get(row) && sourceEdge.getTarget().getId() == verts.get(col).getId()) {
                 removeObjs[j] = (Object) sourceEdge;
 
                 j++;
@@ -437,7 +535,7 @@ public class Graphp {
             System.out.println("old value " + old_value + ", new value " + value);
             mxCell source = (mxCell) verts.get(row);
             mxCell target = (mxCell) verts.get(col);
-            gadap.insertEdge(parent,null, value, source, target);
+            gadap.insertEdge(parent, null, value, source, target);
         }
 
         System.out.println("after changing table " + getAdjacencyMatrix());
