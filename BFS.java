@@ -31,6 +31,7 @@ public class func {
                 }
             }
         }
+        for_answ = new ArrayList<Integer>();
         return for_answ;                                                                        //а вот как вернуть то что путь не был найен я не придумал)
     }
 }
