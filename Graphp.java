@@ -61,14 +61,13 @@ public class Graphp {
         setDefaultStyles();
         layoutParallel = new mxParallelEdgeLayout(gadap);//mxParallelEdgeLayout(gadap);
         layoutCircle = new mxCircleLayout(gadap);
-
+        isUndo = true;
     }
 
     public void setDefaultStyles() {
         vertexSize = 50;
         undoManager = new mxUndoManager(10); //определяем количество шагов в истории
         Undo undolistener = new Undo();
-        isUndo = true;
         graphcomp.getGraph().getModel().addListener(mxEvent.UNDO, undolistener);
         graphcomp.getGraph().getView().addListener(mxEvent.UNDO, undolistener);
         styles = new HashMap<>();
@@ -86,14 +85,12 @@ public class Graphp {
         styles.put(10, mxConstants.SHAPE_DOUBLE_RECTANGLE);
         matri = new MatrixExporter();
         SetStyle(gadap);
-
     }
 
     public class Undo implements mxEventSource.mxIEventListener {
         @Override
         public void invoke(Object o, mxEventObject mxEventObject) {
             if (isUndo) { // если это действие пользователя, то сохранять следующий шаг в истории
-                //System.out.println("event is "+mxEventObject.ge);
                 undoManager.undoableEditHappened((mxUndoableEdit) mxEventObject.getProperty("edit"));
                 System.out.println(" in indo manager!");
                 // обновить таблицу смежности
@@ -120,15 +117,14 @@ public class Graphp {
             table.remove(0); //не особо работает
         }
     }
-
+    // скомпоновать параллельные ребра
     public void composeParallel() {
         isUndo = false;
         layoutParallel.execute(graphcomp.getGraph().getDefaultParent());
         updateTable();
         isUndo = true;
-
     }
-
+    // скомпоновать по кругу
     public void composeCircle() {
         isUndo = false;
         layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
@@ -169,67 +165,43 @@ public class Graphp {
 
         Graph<String, MyEdge> gg = new DefaultDirectedWeightedGraph(MyEdge.class);
 
-        CSVImporter<String, MyEdge> importer = createImporter(gg, CSVFormat.MATRIX, ',');//';'
+        CSVImporter<String, MyEdge> importer = createImporter(gg, CSVFormat.MATRIX, ',');
         importer.setParameter(CSVFormat.Parameter.EDGE_WEIGHTS, true);
         importer.setParameter(CSVFormat.Parameter.MATRIX_FORMAT_ZERO_WHEN_NO_EDGE, true);
+
         try {
             importer.importGraph(gg, new StringReader(input1));
         } catch (ImportException e) {
             e.printStackTrace();
         }
         Object[] edges = gg.edgeSet().toArray();
+
         for (Object a : edges) {
             MyEdge e = (MyEdge) a;
             System.out.println((int) gg.getEdgeWeight(e));
-
         }
-
         graph = new DefaultListenableGraph(gg);
         gadap = new JGraphXAdapter(graph);
-
-        System.out.println(graph.edgeSet().toString() + " in graph");
-
         SetStyle(gadap);
         graphcomp.setGraph(gadap);
         setDefaultStyles();
 
-
         // ниже костыль для размера вершин!
         RedrawVertexSize();
-
-
-        graphcomp.getGraph().getModel().beginUpdate();
-        layoutParallel = new mxParallelEdgeLayout(gadap);//mxParallelEdgeLayout(gadap);
+        layoutParallel = new mxParallelEdgeLayout(gadap);
         layoutCircle = new mxCircleLayout(gadap);
-        layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
-        layoutParallel.execute(graphcomp.getGraph().getDefaultParent());
-
-        graphcomp.getGraph().getModel().endUpdate();
-        graphcomp.refresh();
+        updateGraph();
         isUndo = true;
-
-
     }
-
+    // отрисовка из файла ребер .edg
     public void fromEdgString(ArrayList<ArrayList<String>> inp) {
-        System.out.println("Vertex:" + inp.toString());
-        Graph<String, MyEdge> gg = new DefaultDirectedWeightedGraph(MyEdge.class);
-
         isUndo = false;
-        graph = new DefaultListenableGraph(gg);
-        gadap = new JGraphXAdapter(graph);
-
-        ArrayList<Object> vertices = new ArrayList<>();
         for (int ii = 0; ii < inp.size(); ii++) {
-            System.out.println(inp.get(ii).get(0));
-            int a = Integer.valueOf(inp.get(ii).get(1));
-            int k = Integer.valueOf(inp.get(ii).get(2));
-            int l = Integer.valueOf(inp.get(ii).get(3));
-            int d = Integer.valueOf(inp.get(ii).get(4));
             String aa = inp.get(ii).get(1);
             String kk = inp.get(ii).get(2);
             String ll = inp.get(ii).get(3);
             String dd = inp.get(ii).get(4);
+
             System.out.println(gadap.getCellToVertexMap());
 
             Object[] verts = gadap.getChildVertices(gadap.getDefaultParent());
@@ -243,49 +215,30 @@ public class Graphp {
             }
             Object v1;
             Object v2;
-            if (existcaptions.contains(kk)) {
+            if (existcaptions.contains(kk))
                 v1 = v.get(existcaptions.indexOf(kk));
-            } else
+             else
                 v1 = gadap.insertVertex(null, null, kk, 20, 20, 50, 50);
 
-            if (existcaptions.contains(ll)) {
+            if (existcaptions.contains(ll))
                 v2 = v.get(existcaptions.indexOf(ll));
-            } else
+             else
                 v2 = gadap.insertVertex(null, null, ll, 120, 70, 50, 50);
-
 
            Object edge = gadap.insertEdge(null, null, aa, v1, v2, null);
             if (dd.equals("0")) {
                 gadap.setCellStyles(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_CONNECTOR, new Object[]{edge});
                 gadap.setCellStyles(mxConstants.STYLE_ENDARROW, "ss", new Object[]{edge});
-
             }
-            //gadap.insertEdge(null,null,aa,kk,ll);/////////////
         }
-
-        System.out.println(graph.edgeSet().toString() + " in graph");
-
-        SetStyle(gadap);
-        graphcomp.setGraph(gadap);
-        setDefaultStyles();
-        layoutParallel = new mxParallelEdgeLayout(gadap);//mxParallelEdgeLayout(gadap);
-        // layoutCircle = new mxCircleLayout(gadap);
-        graphcomp.getGraph().getModel().beginUpdate();
-
-        //layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
-        layoutParallel.execute(graphcomp.getGraph().getDefaultParent());
-
-        graphcomp.getGraph().getModel().endUpdate();
-        graphcomp.refresh();
-        updateTable();
+        updateGraph();
         isUndo = true;
     }
 
+    // отрисовка из файла вершин .vert
     public void fromVertString(ArrayList<ArrayList<String>> inp) {
-        System.out.println("Vertex:" + inp.toString());
         isUndo = false;
         Graph<String, MyEdge> gg = new DefaultDirectedWeightedGraph(MyEdge.class);
-
 
         graph = new DefaultListenableGraph(gg);
         gadap = new JGraphXAdapter(graph);
@@ -296,24 +249,16 @@ public class Graphp {
             gadap.insertVertex(null, null, inp.get(ii).get(0), x, y, 50, 50);
         }
 
-        System.out.println(graph.edgeSet().toString() + " in graph");
-
         SetStyle(gadap);
         graphcomp.setGraph(gadap);
         setDefaultStyles();
-        layoutParallel = new mxParallelEdgeLayout(gadap);//mxParallelEdgeLayout(gadap);
-        // layoutCircle = new mxCircleLayout(gadap);
-        graphcomp.getGraph().getModel().beginUpdate();
-
-        //layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
-        layoutParallel.execute(graphcomp.getGraph().getDefaultParent());
-
-        graphcomp.getGraph().getModel().endUpdate();
-        graphcomp.refresh();
-        updateTable();
+        layoutParallel = new mxParallelEdgeLayout(gadap);
+        layoutCircle = new mxCircleLayout(gadap);
+        updateGraph();
         isUndo = true;
     }
 
+    // при загрузке из файла сбивается размер, RedrawVertexSize перерисовывает уже отрисованные вершины
     private void RedrawVertexSize(){
         Object[] verts = gadap.getChildVertices(gadap.getDefaultParent());
         ArrayList<mxCell> vertices = new ArrayList<>();
@@ -328,36 +273,29 @@ public class Graphp {
         }
         i = vertices.size();
     }
-
+    // отрисовка из файла матрицы инциндентности .inc
     public void fromIncMatrixString(ArrayList<ArrayList<String>> inp) {
         System.out.println("Matrix:" + inp.toString());
         isUndo = false;
-        Graph<String, MyEdge> gg = new Multigraph<>(MyEdge.class);
-        for (int ii = 1; ii < inp.get(0).size()+1; ii++) {
-            gg.addVertex(String.valueOf(ii));
-            System.out.println("Create:"+String.valueOf(ii));
+        Object parent = gadap.getDefaultParent();
+        ArrayList<Object> objs = new ArrayList<>();
+        for (int i = 0; i < inp.get(0).size(); i++) {
+            Object v = gadap.insertVertex(parent,null, i+1,50,50,50,50);
+            objs.add(v);
         }
 
-        for (int ii = 0; ii < inp.size(); ii++) {
-            System.out.println("Here:" + inp.get(ii));
-            String v = String.valueOf(inp.get(ii).indexOf("1") + 1);
-            String v1 = String.valueOf(inp.get(ii).indexOf("-1") + 1);
-            System.out.println("Verrrrrrr:"+v+v1);
-            gg.addEdge(v1, v);
+        for (int i = 0; i < inp.size(); i++) {
+            int v1 =inp.get(i).indexOf("1");
+            int v2 = inp.get(i).indexOf("-1");
+            if (v2 == -1)
+                v2 = v1;
+            gadap.insertEdge(parent, null, "", objs.get(v2),objs.get(v1));
         }
-
-        graph = new DefaultListenableGraph(gg);
-        gadap = new JGraphXAdapter(graph);
-
-        System.out.println(graph.edgeSet().toString() + " in graph");
-
-        SetStyle(gadap);
-        graphcomp.setGraph(gadap);
-        setDefaultStyles();
-        RedrawVertexSize();
-
-        layoutParallel = new mxParallelEdgeLayout(gadap);//mxParallelEdgeLayout(gadap);
-        layoutCircle = new mxCircleLayout(gadap);
+        updateGraph();
+        isUndo = true;
+    }
+    //компоновка лаяутов и обновление таблицы
+    private void updateGraph(){
         graphcomp.getGraph().getModel().beginUpdate();
 
         layoutCircle.execute(graphcomp.getGraph().getDefaultParent());
@@ -365,8 +303,7 @@ public class Graphp {
 
         graphcomp.getGraph().getModel().endUpdate();
         graphcomp.refresh();
-        isUndo = true;
-
+        updateTable();
     }
 
 
@@ -409,7 +346,7 @@ public class Graphp {
     public mxGraphComponent getComp() {
         return graphcomp;
     }
-
+    // установка стилей вершин и ребер для графа
     public void SetStyle(mxGraph gr) {
         gr.setAllowLoops(true);
         gr.setAllowDanglingEdges(false);
@@ -446,7 +383,7 @@ public class Graphp {
 
         gr.setStylesheet(style);
     }
-
+    // установка стиля вершины для вершины
     public void SetStyleForVertex(int x, int y, int choiceStyle) {
         graphcomp.getGraph().getModel().beginUpdate();
         Object g = graphcomp.getCellAt(x, y);
@@ -454,7 +391,7 @@ public class Graphp {
 
         graphcomp.getGraph().getModel().endUpdate();
     }
-
+    // установка цвета вершины для вершины
     public void SetColorVertex(int x, int y, String hex) {
         graphcomp.getGraph().getModel().beginUpdate();
         Object g = graphcomp.getCellAt(x, y);
@@ -462,7 +399,7 @@ public class Graphp {
         graphcomp.getGraph().setCellStyles(mxConstants.STYLE_FILLCOLOR, hex, new Object[]{g});
         graphcomp.getGraph().getModel().endUpdate();
     }
-
+    // установка цвета ребра
     public void SetColorEdge(int x, int y, String hex) {
         graphcomp.getGraph().getModel().beginUpdate();
         Object g = graphcomp.getCellAt(x, y);
@@ -470,7 +407,7 @@ public class Graphp {
 
         graphcomp.getGraph().getModel().endUpdate();
     }
-
+    // добавить петлю к вершине
     public void AddLoop(int x, int y) {
         graphcomp.getGraph().getModel().beginUpdate();
 
@@ -480,7 +417,7 @@ public class Graphp {
 
         graphcomp.getGraph().getModel().endUpdate();
     }
-
+    // установка ненаправленности ребра
     public void ChangeDirectionOff(int x, int y) {
         graphcomp.getGraph().getModel().beginUpdate();
         Object g = graphcomp.getCellAt(x, y);
@@ -489,7 +426,7 @@ public class Graphp {
 
         graphcomp.getGraph().getModel().endUpdate();
     }
-
+    // установка направленности ребра
     public void ChangeDirectionOn(int x, int y) {
         graphcomp.getGraph().getModel().beginUpdate();
         Object g = graphcomp.getCellAt(x, y);
@@ -523,10 +460,8 @@ public class Graphp {
             mxCell sourceEdge = (mxCell) verts.get(row).getEdgeAt(i);
             if (sourceEdge.getSource() == verts.get(row) && sourceEdge.getTarget().getId() == verts.get(col).getId()) {
                 removeObjs[j] = (Object) sourceEdge;
-
                 j++;
             }
-
         }
         gadap.removeCells(removeObjs);
         isUndo = true;
@@ -541,7 +476,7 @@ public class Graphp {
         System.out.println("after changing table " + getAdjacencyMatrix());
 
     }
-
+    // получить матрицу смежности текущего графа
     public ArrayList<ArrayList<Integer>> getAdjacencyMatrix() {
 
         Object parent = graphcomp.getGraph().getDefaultParent();
@@ -597,7 +532,7 @@ public class Graphp {
         System.out.println("adjacency matrix: " + adj_matrix);
         return adj_matrix;
     }
-
+    // получить текущую матрицу инциндентности
     public ArrayList<ArrayList<Integer>> getIncedenceMatrix() {
         ArrayList<ArrayList<Integer>> matr_incedence = new ArrayList<>();
 
@@ -632,7 +567,7 @@ public class Graphp {
 
         return matr_incedence;
     }
-
+    // сохранить матрицу смежности в файл
     public void saveAdjacencyMatrix(ArrayList<ArrayList<Integer>> matrix, String filename) {
         String infile = "";
         for (ArrayList<Integer> a : matrix) {
@@ -649,7 +584,7 @@ public class Graphp {
         }
     }
 
-
+    // сохранить матрицу инциндентности в файл
     public void saveIncedenceMatrix(ArrayList<ArrayList<Integer>> matrix, String filename) {
         String infile = "";
         for (ArrayList<Integer> a : matrix) {
@@ -664,11 +599,10 @@ public class Graphp {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
+    // сохранить вершины в файл вида
+    // Vertex{v(x,y), v2(x,y),....}
     public void saveVertices(String filename) {
-        //Vertex{v(x,y), v2(x,y),....}
         String infile = "";
         Object parent = graphcomp.getGraph().getDefaultParent();
         Object[] objs = gadap.getChildVertices(parent);
@@ -683,11 +617,11 @@ public class Graphp {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
+    // Сохранить ребра в файл вида
+    // Edges{i(a, k, l, d), . . .}, где i — номер ребра, a — вес ребра,
+    // k и l — номера или имена вершин, d — может быть 1 если направлено
     public void saveEdges(String filename) {
-        //Edges{i(a, k, l, d), . . .}, где i — номер ребра, a — вес ребра, k и l — номера или имена вершин, d — может быть 1 если направлено
         String infile = "";
         Object parent = graphcomp.getGraph().getDefaultParent();
         Object[] objs = gadap.getChildEdges(parent);
@@ -700,7 +634,6 @@ public class Graphp {
                 directed = 0;
             else
                 directed = 1;
-
             infile += String.valueOf(i) + "("; //+weight
             int edge_weight = 0;
             try {
@@ -718,7 +651,6 @@ public class Graphp {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }
 
