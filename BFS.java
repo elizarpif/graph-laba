@@ -1,13 +1,18 @@
 package com.company;
 
+import jdk.nashorn.internal.ir.IfNode;
+
 import java.util.ArrayList;
+import java.util.Map;
 
 public class Algorithms {
 
     /*----Lab-2--------------------------------------------------------------------------------------------------------*/
 
-    public ArrayList<Integer> BFS(int first, int last, ArrayList<ArrayList<Integer>> matrix){   //номер вершины откуда начинаем, где заканчиваем и сам
+    public BFSAnswer BFS(int first, int last, ArrayList<ArrayList<Integer>> matrix){            //номер вершины откуда начинаем, где заканчиваем и сам
                                                                                                 //и матрица инцидентности
+        if(TestYourMatrix(matrix))return new BFSAnswer(false, new ArrayList<>());
+
         int size_mat = matrix.get(0).size();                                                    //размерность матрицы
         ArrayList<Integer> for_answ = new ArrayList<>();                                        //матрица для ответа
         for_answ.add(first);                                                                    //добавляем в нее вершину откуда ищем
@@ -29,7 +34,7 @@ public class Algorithms {
                         for (int j = 1; j < queueHead; j++)
                             for_answ.add(queue[j]);                                             //записываем что было в очереди и ответ
                         for_answ.add(last);
-                        return for_answ;
+                        return new BFSAnswer(true, for_answ);
                     }
                     used[i] = true;                                                             //отмечаем что были в вершине
                     queue[queueTet++] = i;                                                      //добавляем в очередь чтобы потом обработать
@@ -37,7 +42,7 @@ public class Algorithms {
             }
         }
         for_answ = new ArrayList<>();
-        return for_answ;                                                                        //а вот как вернуть то что путь не был найен я не придумал)
+        return new BFSAnswer(false, for_answ);                                                                        //а вот как вернуть то что путь не был найен я не придумал)
     }
 
     /*----Lab-3--------------------------------------------------------------------------------------------------------*/
@@ -52,7 +57,7 @@ public class Algorithms {
         for(int i = 0; i < MatrixSize; i++)                                                     //Заполняем вееееесь массив расстояний бесконечностью
             Distance[i] = INFINITY;                                                             //кроме той с которой начинаем
         Distance[start] = 0;
-        
+
         for(int i = 0; i < MatrixSize; i++)                                                     //Пройдемся по всей матрице
         {
             int Vdis = -1;
@@ -85,9 +90,26 @@ public class Algorithms {
         return for_result;
     }
 
+    /*----Lab-4--------------------------------------------------------------------------------------------------------*/
 
-    /*---------------------------------------------------------------------------------------------------------Цэ-кит-*/
+
+    /*----------------------------------------------------------------------------------------------------------Цэ-кит-*/
     //Служебные функции пусть будут туть
-    
-    
+    public boolean TestYourMatrix(ArrayList<ArrayList<Integer>> matrix){
+        for (int i = 0; i < matrix.get(0).size(); i++)
+            for (int j = 0; j < matrix.get(0).size(); j++)
+                if(matrix.get(i).get(j) > 1)return true;
+        return false;
+    }
+
+}
+
+class BFSAnswer{
+    private boolean CorrectWork = true;
+    private ArrayList<Integer> Matrix;
+
+    BFSAnswer(boolean a, ArrayList<Integer> b){
+        CorrectWork = a;
+        Matrix = b;
+    }
 }
