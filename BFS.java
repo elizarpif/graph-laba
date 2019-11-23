@@ -1,6 +1,11 @@
+package com.company;
+
 import java.util.ArrayList;
 
-public class func {
+public class Algorithms {
+
+    /*----Lab-2--------------------------------------------------------------------------------------------------------*/
+
     public ArrayList<Integer> BFS(int first, int last, ArrayList<ArrayList<Integer>> matrix){   //номер вершины откуда начинаем, где заканчиваем и сам
                                                                                                 //и матрица инцидентности
         int size_mat = matrix.get(0).size();                                                    //размерность матрицы
@@ -31,59 +36,58 @@ public class func {
                 }
             }
         }
-        for_answ = new ArrayList<Integer>();
-        return for_answ;                                                                   
+        for_answ = new ArrayList<>();
+        return for_answ;                                                                        //а вот как вернуть то что путь не был найен я не придумал)
     }
-    
-    
-    public int[] Deikstra(int start, ArrayList<ArrayList<Integer>> matrix) {
 
-        int INFINITY = Integer.MAX_VALUE/2;
-        int MatrixSize = matrix.get(0).size();
-        boolean[] Visited = new boolean[MatrixSize];
-        int[] Distance = new int[MatrixSize];
+    /*----Lab-3--------------------------------------------------------------------------------------------------------*/
 
-        fill(Distance, INFINITY, start);
+    public int[] Deikstra(int start, ArrayList<ArrayList<Integer>> matrix) {                    //Алгоритм Дейкстры
 
+        int INFINITY = Integer.MAX_VALUE/2;                                                     //Представьте что это бесконечность
+        int MatrixSize = matrix.get(0).size();                                                  //Размер матрицы смежности
+        boolean[] Visited = new boolean[MatrixSize];                                            //Посещенные/непосещенные вершины
+        int[] Distance = new int[MatrixSize];                                                   //Расстояние между начальной и остальными вершинами
 
-        for(int i = 0; i < MatrixSize; i++)
+        for(int i = 0; i < MatrixSize; i++)                                                     //Заполняем вееееесь массив расстояний бесконечностью
+            Distance[i] = INFINITY;                                                             //кроме той с которой начинаем
+        Distance[start] = 0;
+        
+        for(int i = 0; i < MatrixSize; i++)                                                     //Пройдемся по всей матрице
         {
             int Vdis = -1;
 
-            for(int NVdis = 0; NVdis < MatrixSize; NVdis++)
-                if(!Visited[NVdis] && Distance[NVdis] < INFINITY
+            for(int NVdis = 0; NVdis < MatrixSize; NVdis++)                                     //Перебираем вершины
+                if(!Visited[NVdis] && Distance[NVdis] < INFINITY                                //и выбираем самую близкую + не посещенную
                         && (Vdis == -1 || Distance[Vdis] > Distance[NVdis]))
                     Vdis = NVdis;
 
-                if(Vdis == -1) break;
-                Visited[Vdis] = true;
+            if(Vdis == -1) break;                                                               //Если так и осталось -1 значит либо уже рассмотрели,
+            Visited[Vdis] = true;                                                               //либо вершина одинока
 
-                for(int NVdis = 0; NVdis < MatrixSize; NVdis++)
-                    if (!Visited[NVdis] && matrix.get(Vdis).get(NVdis) < INFINITY &&
+            for(int NVdis = 0; NVdis < MatrixSize; NVdis++)                                     //Снова перебор
+                if (!Visited[NVdis] && matrix.get(Vdis).get(NVdis) < INFINITY &&                //Выбираем все смежные, не посещенные вершины и
                         matrix.get(Vdis).get(NVdis) != 0)
-                        Distance[NVdis] = (Distance[NVdis] < Distance[Vdis] +
-                                matrix.get(Vdis).get(NVdis))?Distance[NVdis]:
-                                Distance[Vdis]+matrix.get(Vdis).get(NVdis);
+                    Distance[NVdis] = (Distance[NVdis] < Distance[Vdis] +                       //производим релаксацию или проще улучшаем оценку расстояния спасибо google.com за умные выражения
+                            matrix.get(Vdis).get(NVdis))?Distance[NVdis]:
+                            Distance[Vdis]+matrix.get(Vdis).get(NVdis);
 
         }
         return  Distance;
     }
 
-    public int[][] DeikstraMatrix(ArrayList<ArrayList<Integer>> matrix){
-        int MatrixSize = matrix.get(0).size();
+    public int[][] DeikstraMatrix(ArrayList<ArrayList<Integer>> matrix){                        //Получаем матрицу Дейкстры
+        int MatrixSize = matrix.get(0).size();                                                  //Ничего интересного, то же самое, только для каждой вершины
         int[][] for_result = new int[MatrixSize][MatrixSize];
         for(int i = 0; i < MatrixSize; i++)
             for_result[i] = Deikstra(i, matrix);
 
         return for_result;
     }
-    
-  
-    /*----------------------------------------------------------------------------------------------------------Цэ-кит----*/
+
+
+    /*---------------------------------------------------------------------------------------------------------Цэ-кит-*/
     //Служебные функции пусть будут туть
-    public void fill(int[] a, int b, int excomunicato){
-        for(int i = 0; i < a.length; i++)
-            a[i] = b;
-        a[excomunicato] = 0;
-    }
+    
+    
 }
