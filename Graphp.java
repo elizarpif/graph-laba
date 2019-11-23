@@ -63,7 +63,10 @@ public class Graphp {
             int v2 = vertices.indexOf(g2);
             ArrayList<ArrayList<Integer>> matr = getAdjacencyMatrix();
 
-            ArrayList<Integer> result_verts = algorithm.BFS(v1, v2, matr);
+            BFSAnswer res = algorithm.BFS(v1, v2, matr);
+            if (!res.isCorrectWork())
+                return false;
+            ArrayList<Integer> result_verts = res.Matrix();
             for (int i = 0; i < result_verts.size() - 1; i++) {
                 Object i1 = vertices.get(result_verts.get(i));
                 Object i2 = vertices.get(result_verts.get(i+1));

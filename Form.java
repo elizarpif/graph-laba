@@ -657,11 +657,10 @@ public class Form extends JFrame {
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
-                System.out.println("HERE!!!!!!!");
                 int ind = tabPanel.getSelectedIndex();
                 boolean isReal = graph.elementAt(ind).BFS();
                 if (!isReal) {
-                    System.out.println("BFS не возможен для 2х вершин в данном графе");
+                    JOptionPane.showMessageDialog(null, "BFS не возможен для 2х вершин в данном графе");
                 }
                // System.out.println("max val"+Integer.MAX);
             }
