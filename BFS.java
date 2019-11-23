@@ -3,6 +3,7 @@ package com.company;
 import jdk.nashorn.internal.ir.IfNode;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 public class Algorithms {
@@ -111,5 +112,13 @@ class BFSAnswer{
     BFSAnswer(boolean a, ArrayList<Integer> b){
         CorrectWork = a;
         Matrix = b;
+    }
+
+    public boolean isCorrectWork(){
+        return CorrectWork;
+    }
+
+    public ArrayList<Integer> Matrix(){
+        return Matrix;
     }
 }
