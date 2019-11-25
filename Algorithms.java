@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class Algorithms {
 
-
     /*----Lab-2--------------------------------------------------------------------------------------------------------*/
 
     public BFSAnswer BFS(int first, int last, ArrayList<ArrayList<Integer>> matrix){            //номер вершины откуда начинаем, где заканчиваем и сам
@@ -12,37 +11,51 @@ public class Algorithms {
         if(TestYourMatrix(matrix))return new BFSAnswer(false, new ArrayList<>());
 
         int size_mat = matrix.get(0).size();                                                    //размерность матрицы
-        ArrayList<Integer> for_answ = new ArrayList<>();                                        //матрица для ответа
-        for_answ.add(first);                                                                    //добавляем в нее вершину откуда ищем
 
         boolean[] used = new boolean[size_mat];                                                 //если true то вершину уже посетили, false - не посетили
 
-        int[] queue = new int[size_mat];                                                        //очередь обработки вершин
-        int queueHead = 0, queueTet = 0;                                                        //на какой вершине мы сейчас, где конец очереди
+        ArrayList<Integer> queue = new ArrayList<>();                                           //очередь из вершин
+        queue.add(first);                                                                       //добавляем вершину из которой начали обход
 
-        used[first] = true;
-        queue[queueTet++] = first;                                                              //добавляем первую вершину в очередь
+        int[] ancestor = new int[size_mat];                                                     //массив предков
+        for (int i = 0; i < size_mat; i++)                                                      //заполняем -1 чтобы знать у каких вершин нет предков
+            ancestor[i] = -1;
+        ancestor[first] = first;                                                                //устанавливаем для начальной вершины в качестве предка саму себя
 
-        while(queueHead < queueTet){
-            first = queue[queueHead++];                                                         //обрабатываем то что находится в очереди первым
+        used[first] = true;                                                                     //помечаем начальную вершину как посещенную
 
-            for(int i = 0; i < size_mat; i++) {                                                 //проходимся по всем элементам матрицы смежности
-                if (!used[i] && matrix.get(first).get(i) != 0) {                                //проверяем были ли там уже и является ли вершина смежной
-                    if(i == last) {                                                             //если можем попасть в конечную вершину
-                        for (int j = 1; j < queueHead; j++)
-                            for_answ.add(queue[j]);                                             //записываем что было в очереди и ответ
-                        for_answ.add(last);
-                        return new BFSAnswer(true, for_answ);
-                    }
-                    used[i] = true;                                                             //отмечаем что были в вершине
-                    queue[queueTet++] = i;                                                      //добавляем в очередь чтобы потом обработать
+        while(!queue.isEmpty()){
+
+            first = queue.get(queue.size()-1);                                                  //обрабатываем то что находится в очереди первым
+            queue.remove(queue.size()-1);                                                       //удаляем из очереди
+            for(int i = 0; i < size_mat; i++) {
+                if (!used[i] &&  matrix.get(first).get(i) != 0) {                               //проверяем были ли там уже и является ли вершина смежной
+                    used[i] = true;
+                    queue.add(i);                                                               //добавляем в очередь чтобы потом обработать
+                    ancestor[i] =  first;                                                       //устанавливаем предка для всех смежных вершин
                 }
             }
         }
-        for_answ = new ArrayList<>();
-        return new BFSAnswer(false, for_answ);                                                                        //а вот как вернуть то что путь не был найен я не придумал)
+
+        if (ancestor[last] != -1)                                                               //если вершина в которую ищем путь -1 значит у нее нет предка
+            return new BFSAnswer(true, WayBFS(last, ancestor, new ArrayList<>()));              //и нет пути до этой вершины
+        return new BFSAnswer(false, new ArrayList<>());
     }
 
+    public ArrayList<Integer> WayBFS(int last, int[] ancestor, ArrayList<Integer> MinimalLen){  //Записывает кратчайший путь от вершины до вершины
+        if(ancestor[last] != last){                                                             //алгоритм поднимается к первому предку
+            MinimalLen.add(last);                                                               //каждый раз мы проверяем есть ли предок у вершины
+            WayBFS(ancestor[last], ancestor, MinimalLen);                                           
+        } else
+            MinimalLen.add(last);                                                               //когда предка нет, то добавляем самую первую вершину(откуда искали)
+
+        ArrayList<Integer> for_answer = new ArrayList<>();
+        for (int i = MinimalLen.size() - 1; i >= 0; i--)                                        //разворачиваем список вершин
+            for_answer.add(MinimalLen.get(i));
+
+        return for_answer;                                                          
+    }
+    
     /*----Lab-3--------------------------------------------------------------------------------------------------------*/
 
     public int[] Deikstra(int start, ArrayList<ArrayList<Integer>> matrix) {                    //Алгоритм Дейкстры
