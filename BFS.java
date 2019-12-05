@@ -1,5 +1,6 @@
 package com.company;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class Algorithms {
@@ -210,6 +211,15 @@ public class Algorithms {
                         ForAnswer.AddComponent(component);
                 }
             }
+            for (int i = 0; i < ForAnswer.GetComponent().size(); i++)
+            {
+                for (int j = 0; j < ForAnswer.GetComponent().get(i).size(); j++){
+                    int chek = 0;
+                    for (int k = j; k < ForAnswer.GetComponent().get(i).size(); k++)
+                        if(matrix.get(j).get(k) > 0)chek++;
+                    if (chek < 2)ForAnswer.AddBridge();
+                }
+            }
         }
         return ForAnswer;
     }
@@ -311,5 +321,9 @@ class ConnectivityGraph{
 
     public void AddComponent(ArrayList<Integer> component){ ConnectivityComponent.add(component); }
 
+    public void AddBridge(){ Bridge++; }
+
     public ArrayList<ArrayList<Integer>> GetComponent(){ return ConnectivityComponent; }
+
+    public int GetBridge(){ return Bridge; }
 }
