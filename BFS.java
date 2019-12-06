@@ -1,6 +1,7 @@
 package com.company;
 
 import javax.swing.*;
+import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
 
 public class Algorithms {
@@ -9,7 +10,7 @@ public class Algorithms {
 
     public BFSAnswer BFS(int first, int last, ArrayList<ArrayList<Integer>> matrix){            //номер вершины откуда начинаем, где заканчиваем и сам
         //и матрица инцидентности
-        if(TestYourMatrix(matrix))return new BFSAnswer(false, new ArrayList<Integer>());
+        if(TestYourMatrix(matrix, 1))return new BFSAnswer(false, new ArrayList<Integer>());
 
         int size_mat = matrix.get(0).size();                                                    //размерность матрицы
 
@@ -213,23 +214,35 @@ public class Algorithms {
             }
             for (int i = 0; i < ForAnswer.GetComponent().size(); i++)
             {
-                for (int j = 0; j < ForAnswer.GetComponent().get(i).size(); j++){
+                for (int j = i; j < ForAnswer.GetComponent().get(i).size(); j++){
                     int chek = 0;
                     for (int k = j; k < ForAnswer.GetComponent().get(i).size(); k++)
                         if(matrix.get(j).get(k) > 0)chek++;
-                    if (chek < 2)ForAnswer.AddBridge();
+                    if (chek <= 1)ForAnswer.AddBridge();
                 }
             }
         }
         return ForAnswer;
     }
+
+    /*----Lab-7--------------------------------------------------------------------------------------------------------*/
+
+    public AdditionalGraph AdditionGraph(ArrayList<ArrayList<Integer>> matrix){
+        int matrix_size = matrix.size();
+
+        for (int i = 0; i < matrix_size; i++)
+            for (int j = 0; j < matrix_size; j++)
+                matrix.get(i).set(j, (matrix.get(i).get(j) == 0)?1:0);                          //Меняем все значения на противоположные, чтобы получить дополнение
+
+        return new AdditionalGraph(!TestYourMatrix(matrix, 0), matrix);                      //TestYourMatrix проверит всеэлементы и если везде был 0
+    }                                                                                           //то начальный граф полный
     /*----------------------------------------------------------------------------------------------------------Цэ-кит-*/
 
     /*----Служебные-функции-пусть-будут-туть---------------------------------------------------------------------------*/
-    public boolean TestYourMatrix(ArrayList<ArrayList<Integer>> matrix){
+    public boolean TestYourMatrix(ArrayList<ArrayList<Integer>> matrix, int a){
         for (int i = 0; i < matrix.get(0).size(); i++)
             for (int j = 0; j < matrix.get(0).size(); j++)
-                if(matrix.get(i).get(j) > 1)return true;
+                if(matrix.get(i).get(j) > a)return true;
         return false;
     }
 
@@ -303,7 +316,7 @@ class EccentricityRD{
 
     public int[] GetPowerVertex(){ return PowerVertex; }
 }
-
+/*--------Ответ-для-лабы-6---------------------------------------------------------------------------------------------*/
 class ConnectivityGraph{
     private String Connectivity = "Не связный";
     private ArrayList<ArrayList<Integer>> ConnectivityComponent = new ArrayList<ArrayList<Integer>>();
@@ -326,4 +339,18 @@ class ConnectivityGraph{
     public ArrayList<ArrayList<Integer>> GetComponent(){ return ConnectivityComponent; }
 
     public int GetBridge(){ return Bridge; }
+}
+/*--------Ответ-для-лабы-7---------------------------------------------------------------------------------------------*/
+class AdditionalGraph{
+    private boolean FullGraph;
+    private ArrayList<ArrayList<Integer>> Matrix;
+
+    AdditionalGraph(boolean fullgraph, ArrayList<ArrayList<Integer>> matrix){
+        FullGraph = fullgraph;
+        Matrix = matrix;
+    }
+
+    public boolean isFullGraph(){ return FullGraph; }
+
+    public ArrayList<ArrayList<Integer>> GetGraph(){ return Matrix; }
 }
