@@ -1,5 +1,9 @@
 
 # Основная программа для работы с графами
+## Authores:
+- [elizarpif](https://github.com/elizarpif)
+- [ProshNad](https://github.com/ProshNad)
+- [MrPingvin](https://github.com/MrPingvin)
 
 ### Сделано:
 * #### история
