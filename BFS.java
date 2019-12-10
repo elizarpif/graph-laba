@@ -1,7 +1,5 @@
 package com.company;
 
-import javax.swing.*;
-import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
 
 public class Algorithms {
@@ -236,6 +234,63 @@ public class Algorithms {
 
         return new AdditionalGraph(!TestYourMatrix(matrix, 0), matrix);                      //TestYourMatrix проверит всеэлементы и если везде был 0
     }                                                                                           //то начальный граф полный
+
+    /*----Lab-8--------------------------------------------------------------------------------------------------------*/
+
+    public ArrayList<ArrayList<Integer>> BinaryOperations(ArrayList<ArrayList<Integer>> Matrix1, ArrayList<ArrayList<Integer>> Matrix2, int LogicalFunction){
+        int matrix_size = Matrix1.size();
+        if(matrix_size != Matrix2.size())return new ArrayList<ArrayList<Integer>>(0);
+        ArrayList<ArrayList<Integer>> ResultArray = new ArrayList<ArrayList<Integer>>();
+
+        for (int i = 0; i < matrix_size; i++) {
+            ArrayList<Integer> ResultString = new ArrayList<Integer>();
+            for (int j = 0; j < matrix_size; j++) {
+                switch (LogicalFunction) {
+                    case 1:                                                                     //Объединение
+                        ResultString.add((Matrix1.get(i).get(j) > 0 || Matrix2.get(i).get(j) > 0)?1:0);
+                        break;
+                    case 2:
+                        ResultString.add((Matrix1.get(i).get(j) > 0 && Matrix2.get(i).get(j) > 0)?1:0);
+                        break;
+                    case 3:
+                        int numba = Matrix2.get(i).get(j) - Matrix1.get(i).get(j);
+                        ResultString.add((numba > 0)?1:0);
+                        break;
+                    case 4:
+                        int numab = Matrix1.get(i).get(j) - Matrix2.get(i).get(j);
+                        ResultString.add((numab > 0)?1:0);
+                        break;
+                    case 5:
+                        ResultString.add((Matrix1.get(i).get(j) <= Matrix2.get(i).get(j))?1:0);
+                        break;
+                    case 6:
+                        ResultString.add((Matrix2.get(i).get(j) <= Matrix1.get(i).get(j))?1:0);
+                        break;
+                    case 7:
+                        ResultString.add((Matrix1.get(i).get(j) > Matrix2.get(i).get(j))?1:0);
+                        break;
+                    case 8:
+                        ResultString.add((Matrix2.get(i).get(j) > Matrix1.get(i).get(j))?1:0);
+                        break;
+                    case 9:
+                        ResultString.add((Matrix1.get(i).get(j) == Matrix2.get(i).get(j))?0:1);
+                        break;
+                    case 10:
+                        ResultString.add((Matrix2.get(i).get(j) == Matrix1.get(i).get(j))?1:0);
+                        break;
+                    case 11:
+                        ResultString.add((Matrix2.get(i).get(j) * Matrix1.get(i).get(j) > 0)?0:1);
+                        break;
+                    case 12:
+                        ResultString.add((Matrix2.get(i).get(j) == 0 && Matrix1.get(i).get(j) == 0)?1:0);
+                        break;
+                }
+            }
+            ResultArray.add(ResultString);
+        }
+        return ResultArray;
+    }
+
     /*----------------------------------------------------------------------------------------------------------Цэ-кит-*/
 
     /*----Служебные-функции-пусть-будут-туть---------------------------------------------------------------------------*/
