@@ -122,7 +122,7 @@ public class Algorithms {
         for (int i = 0; i < matrix_size; i++) {
             for (int j = 0; j < matrix_size; j++)
                 if (maxDiamInRound < findRadius[i][j]) maxDiamInRound = findRadius[i][j];       //Ищем максимальное расстояние
-            Diametr = (Radius == 0 || Radius < maxDiamInRound) ? maxDiamInRound : Radius;       //Ищем диаметр
+            Diametr = (Diametr == 0 || Diametr < maxDiamInRound) ? maxDiamInRound : Diametr;       //Ищем диаметр
             maxDiamInRound = 0;
         }
 
