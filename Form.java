@@ -690,6 +690,17 @@ public class Form extends JFrame {
             }
         });
 
+        JMenuItem delSelectVItem = new JMenuItem("Снять выделения");
+
+        delSelectVItem.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                int ind = tabPanel.getSelectedIndex();
+                graph.elementAt(ind).DelSelection();
+            }
+        });
+
         JMenuItem directItemOff = new JMenuItem("Сделать ребро ненаправленным");
         directItemOff.addMouseListener(new MouseAdapter() {
             @Override
@@ -713,6 +724,7 @@ public class Form extends JFrame {
         });
 
         popupAddV.add(addVItem);
+        popupAddV.add(delSelectVItem);
         popupE.add(deleteEItem);
         popupE.add(ColorEItem);
         popupE.add(directItemOff);

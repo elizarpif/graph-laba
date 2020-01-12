@@ -1,21 +1,20 @@
 package com.company;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 public class Algorithms {
 
     /*----Lab-2--------------------------------------------------------------------------------------------------------*/
 
     public BFSAnswer BFS(int first, int last, ArrayList<ArrayList<Integer>> matrix){            //номер вершины откуда начинаем, где заканчиваем и сам
-                                                                                                //и матрица инцидентности
-        if(TestYourMatrix(matrix))return new BFSAnswer(false, new ArrayList<>());
+        //и матрица инцидентности
+        if(TestYourMatrix(matrix, 1))return new BFSAnswer(false, new ArrayList<Integer>());
 
         int size_mat = matrix.get(0).size();                                                    //размерность матрицы
 
         boolean[] used = new boolean[size_mat];                                                 //если true то вершину уже посетили, false - не посетили
 
-        ArrayList<Integer> queue = new ArrayList<>();                                           //очередь из вершин
+        ArrayList<Integer> queue = new ArrayList<Integer>();                                    //очередь из вершин
         queue.add(first);                                                                       //добавляем вершину из которой начали обход
 
         int[] ancestor = new int[size_mat];                                                     //массив предков
@@ -39,8 +38,8 @@ public class Algorithms {
         }
 
         if (ancestor[last] != -1)                                                               //если вершина в которую ищем путь -1 значит у нее нет предка
-            return new BFSAnswer(true, WayBFS(last, ancestor, new ArrayList<>()));           //и нет пути до этой вершины
-        return new BFSAnswer(false, new ArrayList<>());
+            return new BFSAnswer(true, WayBFS(last, ancestor, new ArrayList<Integer>()));    //и нет пути до этой вершины
+        return new BFSAnswer(false, new ArrayList<Integer>());
     }
 
     public ArrayList<Integer> WayBFS(int last, int[] ancestor, ArrayList<Integer> MinimalLen){  //Записывает кратчайший путь от вершины до вершины
@@ -50,7 +49,7 @@ public class Algorithms {
         } else
             MinimalLen.add(last);                                                               //когда предка нет, то добавляем самую первую вершину(откуда искали)
 
-        ArrayList<Integer> for_answer = new ArrayList<>();
+        ArrayList<Integer> for_answer = new ArrayList<Integer>();
         for (int i = MinimalLen.size() - 1; i >= 0; i--)                                        //разворачиваем список вершин
             for_answer.add(MinimalLen.get(i));
 
@@ -85,9 +84,8 @@ public class Algorithms {
             for(int NVdis = 0; NVdis < MatrixSize; NVdis++)                                     //Снова перебор
                 if (!Visited[NVdis] && matrix.get(Vdis).get(NVdis) < INFINITY &&                //Выбираем все смежные, не посещенные вершины и
                         matrix.get(Vdis).get(NVdis) != 0)
-                    Distance[NVdis] = (Distance[NVdis] < Distance[Vdis] +                       //производим релаксацию или проще улучшаем оценку расстояния спасибо google.com за умные выражения
-                            matrix.get(Vdis).get(NVdis))?Distance[NVdis]:
-                            Distance[Vdis]+matrix.get(Vdis).get(NVdis);
+                    Distance[NVdis] = Math.min(Distance[NVdis] , Distance[Vdis] +               //производим релаксацию или проще улучшаем оценку расстояния спасибо google.com за умные выражения
+                            matrix.get(Vdis).get(NVdis));
 
         }
         return  Distance;
@@ -106,7 +104,7 @@ public class Algorithms {
 
     public EccentricityRD EccentricityRD(ArrayList<ArrayList<Integer>> matrix){                 //Эксцентриситет, радиус, диаметр
         int matrix_size = matrix.size();
-        ArrayList<Integer> VertexWeight = new ArrayList<>();                                    //Вес вершин или их эксцентриситет
+        ArrayList<Integer> VertexWeight = new ArrayList<Integer>();                             //Вес вершин или их эксцентриситет
 
 
         int[][] findRadius = DeikstraMatrix(matrix);                                            //Матрица Дейкстры(расстояния до вершин)
@@ -139,28 +137,167 @@ public class Algorithms {
         int[] PowerMatrix1 = PowerVertex(matrix1);                                              //Степени вершин матриц
         int[] PowerMatrix2 = PowerVertex(matrix2);
 
-        if(PowerMatrix1 != PowerMatrix2)System.out.println("1");                                                 //Если вектора степеней матриц равны, то сильно неизоморфны
+        if(PowerMatrix1 != PowerMatrix2)System.out.println("1");                                //Если вектора степеней матриц равны, то сильно неизоморфны
 
-        ArrayList<ArrayList<Integer>> a = new ArrayList<>(), b = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> a = new ArrayList<ArrayList<Integer>>(), b = new ArrayList<ArrayList<Integer>>();
         for (int i = 0; i < matrix1.size(); i++){
-            a.get(i).set(i, 1);
-            b.get(i).set(i, 1);
+            //a.get(i).set(i, 1);
+            //b.get(i).set(i, 1);
         }
 
-        b = TMatrix(b);
-        matrix1 = MatrixX(MatrixX(b, matrix1), a);
+        //b = TMatrix(b);
+        //matrix1 = MatrixX(MatrixX(b, matrix1), a);
 
         if (matrix1 == matrix2)System.out.println("2");
 
     }
 
+    /*----Lab-6--------------------------------------------------------------------------------------------------------*/
+
+    public ConnectivityGraph ConnectivityGraph(ArrayList<ArrayList<Integer>> matrix, boolean GraphIsOriented){
+        ConnectivityGraph ForAnswer = new ConnectivityGraph();
+
+        int matrix_size = matrix.size();
+
+        if(!GraphIsOriented) {
+            boolean Connectivity = true;                                                        //Индикатор связности графа
+            int[] distance = Deikstra(0, matrix);                                         //Расстояния до каждой вершины в графе
+
+            for (int i = 0; i < distance.length; i++)                                           //Проверяем неориентированный граф на связность
+                if(distance[i] >= Integer.MAX_VALUE/2)Connectivity = false;
+
+            if(!Connectivity){                                                                  //Если граф несвязный, то ищем количество компонент связности
+                int first = 0;
+                int[] ancestor = new int[matrix_size];
+                for (int i = 0; i < matrix_size; i++)
+                    ancestor[i] = -1;
+
+                while(first != -1) {
+                    ancestor[first] = first;
+
+                    ArrayList<Integer> queue = new ArrayList<Integer>();
+                    queue.add(first);
+
+                    boolean[] used = new boolean[matrix_size];
+                    used[first] = true;
+
+                    while (!queue.isEmpty()) {
+
+                        first = queue.get(queue.size() - 1);
+                        queue.remove(queue.size() - 1);
+                        for (int i = 0; i < matrix_size; i++) {
+                            if (!used[i] && matrix.get(first).get(i) != 0) {
+                                used[i] = true;
+                                queue.add(i);
+                                ancestor[i] = first;
+                            }
+                        }
+                    }
+
+                    ArrayList<Integer> component = new ArrayList<Integer>();
+                    for (int i = 0; i < matrix_size; i++)
+                        if (ancestor[i] >= 0) {
+                            component.add(i);
+                            ancestor[i] = -2;
+                        }
+
+                    for (int i = 0; i < matrix_size; i++)
+                        if (ancestor[i] == -1){
+                            first = i;
+                            break;
+                        } else first = -1;
+
+                    ForAnswer.AddComponent(component);
+                }
+            }
+            for (int i = 0; i < ForAnswer.GetComponent().size(); i++)
+            {
+                for (int j = i; j < ForAnswer.GetComponent().get(i).size(); j++){
+                    int chek = 0;
+                    for (int k = j; k < ForAnswer.GetComponent().get(i).size(); k++)
+                        if(matrix.get(j).get(k) > 0)chek++;
+                    if (chek <= 1)ForAnswer.AddBridge();
+                }
+            }
+        }
+        return ForAnswer;
+    }
+
+    /*----Lab-7--------------------------------------------------------------------------------------------------------*/
+
+    public AdditionalGraph AdditionGraph(ArrayList<ArrayList<Integer>> matrix){
+        int matrix_size = matrix.size();
+
+        for (int i = 0; i < matrix_size; i++)
+            for (int j = 0; j < matrix_size; j++)
+                matrix.get(i).set(j, (matrix.get(i).get(j) == 0)?1:0);                          //Меняем все значения на противоположные, чтобы получить дополнение
+
+        return new AdditionalGraph(!TestYourMatrix(matrix, 0), matrix);                      //TestYourMatrix проверит всеэлементы и если везде был 0
+    }                                                                                           //то начальный граф полный
+
+    /*----Lab-8--------------------------------------------------------------------------------------------------------*/
+
+    public ArrayList<ArrayList<Integer>> BinaryOperations(ArrayList<ArrayList<Integer>> Matrix1, ArrayList<ArrayList<Integer>> Matrix2, int LogicalFunction){
+        int matrix_size = Matrix1.size();
+        if(matrix_size != Matrix2.size())return new ArrayList<ArrayList<Integer>>(0);
+        ArrayList<ArrayList<Integer>> ResultArray = new ArrayList<ArrayList<Integer>>();
+
+        for (int i = 0; i < matrix_size; i++) {
+            ArrayList<Integer> ResultString = new ArrayList<Integer>();
+            for (int j = 0; j < matrix_size; j++) {
+                switch (LogicalFunction) {
+                    case 1:                                                                     //Объединение
+                        ResultString.add((Matrix1.get(i).get(j) > 0 || Matrix2.get(i).get(j) > 0)?1:0);
+                        break;
+                    case 2:
+                        ResultString.add((Matrix1.get(i).get(j) > 0 && Matrix2.get(i).get(j) > 0)?1:0);
+                        break;
+                    case 3:
+                        int numba = Matrix2.get(i).get(j) - Matrix1.get(i).get(j);
+                        ResultString.add((numba > 0)?1:0);
+                        break;
+                    case 4:
+                        int numab = Matrix1.get(i).get(j) - Matrix2.get(i).get(j);
+                        ResultString.add((numab > 0)?1:0);
+                        break;
+                    case 5:
+                        ResultString.add((Matrix1.get(i).get(j) <= Matrix2.get(i).get(j))?1:0);
+                        break;
+                    case 6:
+                        ResultString.add((Matrix2.get(i).get(j) <= Matrix1.get(i).get(j))?1:0);
+                        break;
+                    case 7:
+                        ResultString.add((Matrix1.get(i).get(j) > Matrix2.get(i).get(j))?1:0);
+                        break;
+                    case 8:
+                        ResultString.add((Matrix2.get(i).get(j) > Matrix1.get(i).get(j))?1:0);
+                        break;
+                    case 9:
+                        ResultString.add((Matrix1.get(i).get(j) == Matrix2.get(i).get(j))?0:1);
+                        break;
+                    case 10:
+                        ResultString.add((Matrix2.get(i).get(j) == Matrix1.get(i).get(j))?1:0);
+                        break;
+                    case 11:
+                        ResultString.add((Matrix2.get(i).get(j) * Matrix1.get(i).get(j) > 0)?0:1);
+                        break;
+                    case 12:
+                        ResultString.add((Matrix2.get(i).get(j) == 0 && Matrix1.get(i).get(j) == 0)?1:0);
+                        break;
+                }
+            }
+            ResultArray.add(ResultString);
+        }
+        return ResultArray;
+    }
+
     /*----------------------------------------------------------------------------------------------------------Цэ-кит-*/
 
     /*----Служебные-функции-пусть-будут-туть---------------------------------------------------------------------------*/
-    public boolean TestYourMatrix(ArrayList<ArrayList<Integer>> matrix){
+    public boolean TestYourMatrix(ArrayList<ArrayList<Integer>> matrix, int a){
         for (int i = 0; i < matrix.get(0).size(); i++)
             for (int j = 0; j < matrix.get(0).size(); j++)
-                if(matrix.get(i).get(j) > 1)return true;
+                if(matrix.get(i).get(j) > a)return true;
         return false;
     }
 
@@ -209,17 +346,13 @@ class BFSAnswer{
         Matrix = b;
     }
 
-    public boolean isCorrectWork(){
-        return CorrectWork;
-    }
+    public boolean isCorrectWork(){ return CorrectWork; }
 
-    public ArrayList<Integer> Matrix(){
-        return Matrix;
-    }
+    public ArrayList<Integer> Matrix(){ return Matrix; }
 }
 /*--------Ответ-для-лабы-4---------------------------------------------------------------------------------------------*/
 class EccentricityRD{
-    private ArrayList<Integer> VertexWeight = new ArrayList<>();                                //Вес каждой вершины или ее эксцентриситет
+    private ArrayList<Integer> VertexWeight = new ArrayList<Integer>();                         //Вес каждой вершины или ее эксцентриситет
     private int Radius, Diametr;                                                                //Радиус, диаметр
     private int[] PowerVertex;                                                                  //Степени вершин
 
@@ -230,11 +363,49 @@ class EccentricityRD{
         PowerVertex = power;
     }
 
-    public ArrayList<Integer> GetVertexWeight(){return VertexWeight; }
+    public ArrayList<Integer> GetVertexWeight(){ return VertexWeight; }
 
     public int GetRadius(){ return Radius; }
 
     public int GetDiametr(){ return Diametr; }
 
     public int[] GetPowerVertex(){ return PowerVertex; }
+}
+/*--------Ответ-для-лабы-6---------------------------------------------------------------------------------------------*/
+class ConnectivityGraph{
+    private String Connectivity = "Не связный";
+    private ArrayList<ArrayList<Integer>> ConnectivityComponent = new ArrayList<ArrayList<Integer>>();
+    private int Bridge = 0;
+    private int Hinge = 0;
+
+    ConnectivityGraph(){}
+
+    ConnectivityGraph(String connect, ArrayList<ArrayList<Integer>> connectcomponent, int bridge, int hinge){
+        Connectivity = connect;
+        ConnectivityComponent = connectcomponent;
+        Bridge = bridge;
+        Hinge = hinge;
+    }
+
+    public void AddComponent(ArrayList<Integer> component){ ConnectivityComponent.add(component); }
+
+    public void AddBridge(){ Bridge++; }
+
+    public ArrayList<ArrayList<Integer>> GetComponent(){ return ConnectivityComponent; }
+
+    public int GetBridge(){ return Bridge; }
+}
+/*--------Ответ-для-лабы-7---------------------------------------------------------------------------------------------*/
+class AdditionalGraph{
+    private boolean FullGraph;
+    private ArrayList<ArrayList<Integer>> Matrix;
+
+    AdditionalGraph(boolean fullgraph, ArrayList<ArrayList<Integer>> matrix){
+        FullGraph = fullgraph;
+        Matrix = matrix;
+    }
+
+    public boolean isFullGraph(){ return FullGraph; }
+
+    public ArrayList<ArrayList<Integer>> GetGraph(){ return Matrix; }
 }

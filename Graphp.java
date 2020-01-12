@@ -4,6 +4,7 @@ import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.layout.mxParallelEdgeLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.*;
 import com.mxgraph.view.mxGraph;
@@ -69,20 +70,29 @@ public class Graphp {
             ArrayList<Integer> result_verts = res.Matrix();
             for (int i = 0; i < result_verts.size() - 1; i++) {
                 Object i1 = vertices.get(result_verts.get(i));
-                Object i2 = vertices.get(result_verts.get(i+1));
+                Object i2 = vertices.get(result_verts.get(i + 1));
                 Object[] edge = gadap.getEdgesBetween(i1, i2);
-               // System.out.println(((mxCell)edge).getValue());
+                // System.out.println(((mxCell)edge).getValue());
                 gadap.getModel().beginUpdate();
                 String color = "#ff3333";
                 gadap.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, edge);
                 gadap.getModel().endUpdate();
             }
-            System.out.println("verts result :"+result_verts);
+            System.out.println("verts result :" + result_verts);
 
         }
         return true;
         //graphcomp.getGraph().removeCells(new Object[]{g})
 
+    }
+
+    public void DelSelection() {
+        //Object[] vs = gadap.getSelectionCells();
+        gadap.setSelectionCells(new Object[]{});
+        // снять отрисовку
+        Object[] edgesObj = gadap.getChildEdges(gadap.getDefaultParent());
+        String hex="#000000";
+        gadap.setCellStyles(mxConstants.STYLE_STROKECOLOR, hex, edgesObj);
     }
 
     Graphp(JTable t, int index, Vector<DefaultTableModel> matr) {
@@ -133,7 +143,11 @@ public class Graphp {
         public void invoke(Object o, mxEventObject mxEventObject) {
             if (isUndo) { // если это действие пользователя, то сохранять следующий шаг в истории
                 undoManager.undoableEditHappened((mxUndoableEdit) mxEventObject.getProperty("edit"));
-                System.out.println(" in indo manager!");
+                System.out.println(" in indo manager! ");
+                mxGraphModel model = (mxGraphModel) o;
+
+                System.out.println("try to " + ((mxGraphModel) o) + "");
+                System.out.println("name = " + mxEventObject.getName());
                 // обновить таблицу смежности
                 updateTable();
                 isSave = false;
@@ -143,6 +157,7 @@ public class Graphp {
 
     // обновление таблицы смежности
     private void updateTable() {
+
         ArrayList<ArrayList<Integer>> matr = getAdjacencyMatrix();
         System.out.println("in update table");
         if (matr.size() > 0) {
@@ -537,6 +552,7 @@ public class Graphp {
         }
 
         ArrayList<ArrayList<Integer>> adj_matrix = new ArrayList<>();
+
         for (mxCell v : verts) {
             ArrayList<Integer> values = new ArrayList<>();
             for (int i = 0; i < vertices.size(); i++)
@@ -704,4 +720,3 @@ public class Graphp {
         }
     }
 }
-
