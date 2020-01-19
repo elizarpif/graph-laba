@@ -1,10 +1,11 @@
-package com.company;
+package com.company.core.graph;
 
+import com.company.core.algorithms.Algorithms;
+import com.company.core.algorithms.BFSAnswer;
 import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.layout.mxParallelEdgeLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.*;
 import com.mxgraph.view.mxGraph;
@@ -47,55 +48,7 @@ public class Graphp {
     private int vertexSize;
     private Algorithms algorithm;
 
-    public boolean BFS() {
-
-        Object[] vs = gadap.getSelectionCells();
-        if (vs.length != 2)
-            return false;
-
-        Object g1 = vs[0];
-        Object g2 = vs[1];
-        if (((mxCell) g1).isVertex() && ((mxCell) g2).isVertex()) {
-            Object[] verts = gadap.getChildVertices(gadap.getDefaultParent());
-
-            ArrayList<Object> vertices = new ArrayList<>();
-            Collections.addAll(vertices, verts);
-            int v1 = vertices.indexOf(g1);
-            int v2 = vertices.indexOf(g2);
-            ArrayList<ArrayList<Integer>> matr = getAdjacencyMatrix();
-
-            BFSAnswer res = algorithm.BFS(v1, v2, matr);
-            if (!res.isCorrectWork())
-                return false;
-            ArrayList<Integer> result_verts = res.Matrix();
-            for (int i = 0; i < result_verts.size() - 1; i++) {
-                Object i1 = vertices.get(result_verts.get(i));
-                Object i2 = vertices.get(result_verts.get(i + 1));
-                Object[] edge = gadap.getEdgesBetween(i1, i2);
-                // System.out.println(((mxCell)edge).getValue());
-                gadap.getModel().beginUpdate();
-                String color = "#ff3333";
-                gadap.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, edge);
-                gadap.getModel().endUpdate();
-            }
-            System.out.println("verts result :" + result_verts);
-
-        }
-        return true;
-        //graphcomp.getGraph().removeCells(new Object[]{g})
-
-    }
-
-    public void DelSelection() {
-        //Object[] vs = gadap.getSelectionCells();
-        gadap.setSelectionCells(new Object[]{});
-        // снять отрисовку
-        Object[] edgesObj = gadap.getChildEdges(gadap.getDefaultParent());
-        String hex="#000000";
-        gadap.setCellStyles(mxConstants.STYLE_STROKECOLOR, hex, edgesObj);
-    }
-
-    Graphp(JTable t, int index, Vector<DefaultTableModel> matr) {
+    public Graphp(JTable t, int index, Vector<DefaultTableModel> matr) {
         algorithm = new Algorithms();
         // граф "изнутри"
         g = new DefaultDirectedWeightedGraph(DefaultEdge.class);//SimpleGraph<>(DefaultEdge.class);
@@ -115,14 +68,89 @@ public class Graphp {
         isUndo = true;
     }
 
+
+    public boolean BFS() {
+        Object[] vs = gadap.getSelectionCells();
+
+        // если количество выбранных вершин не равно 2
+        if (vs.length != 2)
+            return false;
+
+        Object g1 = vs[0];
+        Object g2 = vs[1];
+
+        // если один из выбранных объектов - ребро
+        if (((mxCell) g1).isEdge() || ((mxCell) g2).isEdge()) {
+            return false;
+        }
+
+        Object[] verts = gadap.getChildVertices(gadap.getDefaultParent());
+
+        ArrayList<Object> vertices = new ArrayList<>();
+        Collections.addAll(vertices, verts);
+
+        int v1 = vertices.indexOf(g1);
+        int v2 = vertices.indexOf(g2);
+
+        ArrayList<ArrayList<Integer>> matr = getAdjacencyMatrix();
+
+        BFSAnswer res = algorithm.BFS(v1, v2, matr);
+
+        if (!res.isCorrectWork())
+            return false;
+
+        ArrayList<Integer> result_verts = res.Matrix();
+        paintEdgesInRedColor(result_verts, vertices);
+
+        return true;
+    }
+
+    // раскраска ребер красным цветом
+    private void paintEdgesInRedColor(ArrayList<Integer> matrix, ArrayList<Object> vertices) {
+        for (int i = 0; i < matrix.size() - 1; i++) {
+            Object i1 = vertices.get(matrix.get(i));
+            Object i2 = vertices.get(matrix.get(i + 1));
+
+            Object[] edges = gadap.getEdgesBetween(i1, i2);
+            setRedColor(edges);
+        }
+    }
+
+    // установить цвет ребер
+    private void setColor(Object[] edges, String color) {
+        gadap.getModel().beginUpdate();
+        gadap.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, edges);
+        gadap.getModel().endUpdate();
+    }
+
+    private void setRedColor(Object[] edges) {
+        String color = "#ff3333";
+        setColor(edges, color);
+    }
+
+    private void setBlackColor(Object[] edges) {
+        String color = "#000000";
+        setColor(edges, color);
+    }
+
+    // снять цветное выделение ребер
+    public void DelSelection() {
+        gadap.setSelectionCells(new Object[]{});
+        Object[] edges = gadap.getChildEdges(gadap.getDefaultParent());
+        setBlackColor(edges);
+    }
+
     public void setDefaultStyles() {
         vertexSize = 50;
+
         undoManager = new mxUndoManager(10); //определяем количество шагов в истории
         Undo undolistener = new Undo();
+
         graphcomp.getGraph().getModel().addListener(mxEvent.UNDO, undolistener);
         graphcomp.getGraph().getView().addListener(mxEvent.UNDO, undolistener);
-        styles = new HashMap<>();
+
         // всякие стили для вершин
+        styles = new HashMap<>();
         styles.put(0, mxConstants.SHAPE_RECTANGLE);
         styles.put(1, mxConstants.SHAPE_ELLIPSE);
         styles.put(2, mxConstants.SHAPE_CYLINDER);
@@ -134,6 +162,7 @@ public class Graphp {
         styles.put(8, mxConstants.SHAPE_ACTOR);
         styles.put(9, mxConstants.SHAPE_SWIMLANE);
         styles.put(10, mxConstants.SHAPE_DOUBLE_RECTANGLE);
+
         matri = new MatrixExporter();
         SetStyle(gadap);
     }
@@ -143,11 +172,6 @@ public class Graphp {
         public void invoke(Object o, mxEventObject mxEventObject) {
             if (isUndo) { // если это действие пользователя, то сохранять следующий шаг в истории
                 undoManager.undoableEditHappened((mxUndoableEdit) mxEventObject.getProperty("edit"));
-                System.out.println(" in indo manager! ");
-                mxGraphModel model = (mxGraphModel) o;
-
-                System.out.println("try to " + ((mxGraphModel) o) + "");
-                System.out.println("name = " + mxEventObject.getName());
                 // обновить таблицу смежности
                 updateTable();
                 isSave = false;
@@ -157,22 +181,32 @@ public class Graphp {
 
     // обновление таблицы смежности
     private void updateTable() {
-
         ArrayList<ArrayList<Integer>> matr = getAdjacencyMatrix();
-        System.out.println("in update table");
+
         if (matr.size() > 0) {
-            ArrayList<Integer> m = matr.get(0);
-            Object[][] data = new Object[m.size()][m.size()];
-            for (int i = 0; i < m.size(); i++)
-                for (int j = 0; j < m.size(); j++)
-                    data[i][j] = matr.get(i).get(j);
-            graphmatrix.get(tabindex).setDataVector(data, new Object[data[0].length]);
-            table.setModel(graphmatrix.get(tabindex));
+            updateMatrixTableValues(matr);
         } else {
-            Object[][] data = new Object[0][0];
-            graphmatrix.get(tabindex).setDataVector(data, new Object[0]);
-            table.setModel(graphmatrix.get(tabindex));
+            updateMatrixTableEmpty();
         }
+    }
+    // непустая таблица
+    private void updateMatrixTableValues(ArrayList<ArrayList<Integer>> matr) {
+        ArrayList<Integer> m = matr.get(0);
+        Object[][] data = new Object[m.size()][m.size()];
+
+        for (int i = 0; i < m.size(); i++)
+            for (int j = 0; j < m.size(); j++)
+                data[i][j] = matr.get(i).get(j);
+
+        graphmatrix.get(tabindex).setDataVector(data, new Object[data[0].length]);
+        table.setModel(graphmatrix.get(tabindex));
+    }
+
+    // пустая таблица
+    private void updateMatrixTableEmpty() {
+        Object[][] data = new Object[0][0];
+        graphmatrix.get(tabindex).setDataVector(data, new Object[0]);
+        table.setModel(graphmatrix.get(tabindex));
     }
 
     // скомпоновать параллельные ребра
@@ -196,7 +230,7 @@ public class Graphp {
     public void SetSave() {
         isSave = true;
     }
-
+    // был ли граф сохранен?
     public boolean IsSave() {
         return isSave;
     }

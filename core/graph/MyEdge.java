@@ -1,4 +1,4 @@
-package com.company;
+package com.company.core.graph;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 

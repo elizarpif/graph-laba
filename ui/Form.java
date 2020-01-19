@@ -1,16 +1,14 @@
-package com.company;
+package com.company.ui;
 
+import com.company.core.graph.Graphp;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import org.apache.commons.io.FilenameUtils;
-
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -26,6 +24,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Vector;
 
 public class Form extends JFrame {
@@ -43,7 +42,7 @@ public class Form extends JFrame {
     private JScrollPane scrollpane;
     private Vector<DefaultTableModel> graphmatrix; // вектор моделей для таблицы матрицы смежности
     private Vector<Graphp> graph; //вектор Графов, отрисовываемых на панельке табвиджета
-    int x, y, n;
+    int x, y;
 
     public Form() {
         setContentPane(panel1);
@@ -136,7 +135,6 @@ public class Form extends JFrame {
             }
         });
 
-
         tabPanel.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -201,6 +199,72 @@ public class Form extends JFrame {
         });
     }
 
+
+    private void addMenuItem(JMenu m, String name, int choice) {
+        Font font = new Font("Chilanka", Font.BOLD, 24);
+
+        JMenuItem menuItem = new JMenuItem(name);
+
+        menuItem.setFont(font);
+        m.add(menuItem);
+
+        DialogActionListener l = new DialogActionListener();
+        l.setChoiceDialog(choice);
+        menuItem.addActionListener(l);
+    }
+
+    private boolean IsFileWasChoosen(JFileChooser k) {
+        File f2 = new File(".").getAbsoluteFile();
+
+        k.setCurrentDirectory(f2);
+
+        if (k.showSaveDialog(getParent()) == JFileChooser.APPROVE_OPTION)
+            return true;
+        return false;
+    }
+
+    private String getFileName(JFileChooser k, int ind) {
+        File f = k.getSelectedFile();
+
+        String filename = f.getName();
+
+        if (filename.equals(""))
+            filename = String.valueOf(ind);
+        return filename;
+    }
+
+    private void saveAdjacencyMatrix() {
+        JFileChooser k = new JFileChooser();
+
+        if (!IsFileWasChoosen(k)) {
+            return;
+        }
+
+        int ind = tabPanel.getSelectedIndex();
+        String filename = getFileName(k, ind);
+
+        ArrayList<ArrayList<Integer>> matr = graph.get(ind).getAdjacencyMatrix();
+
+        graph.get(ind).saveAdjacencyMatrix(matr, filename);
+        graph.get(ind).SetSave();
+    }
+
+    private void saveIncedenceMatrix() {
+        JFileChooser k = new JFileChooser();
+
+        if (!IsFileWasChoosen(k)) {
+            return;
+        }
+
+        int ind = tabPanel.getSelectedIndex();
+        String filename = getFileName(k, ind);
+
+        ArrayList<ArrayList<Integer>> matr = graph.get(ind).getIncedenceMatrix();
+
+        graph.get(ind).saveIncedenceMatrix(matr, filename);
+        graph.get(ind).SetSave();
+    }
+
     public void setMenu() {
 
         Font font = new Font("Chilanka", Font.BOLD, 24);
@@ -213,66 +277,31 @@ public class Form extends JFrame {
         JMenu aboutMenu = new JMenu("About");
         aboutMenu.setFont(font);
 
-        JMenuItem aboutProgramMenu = new JMenuItem("About program");
-        aboutProgramMenu.setFont(font);
-        aboutMenu.add(aboutProgramMenu);
+        HashMap<Integer, String> menuItems = new HashMap<>();
+        menuItems.put(0, "About Program");
+        menuItems.put(1, "About Authors");
 
-        // Todo: make one function for about-listeners
-        aboutProgramMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AboutProgram dialog = new AboutProgram();
-                dialog.pack();
-                dialog.setVisible(true);
-            }
-        });
+        // создаем в цикле элементы меню по хешмапу с дефолтными настройками и диалогами
+        for (int i = 0; i < menuItems.size(); i++)
+            addMenuItem(aboutMenu, menuItems.get(i), i);
 
-        JMenuItem aboutAuthorsMenu = new JMenuItem("About authors");
-        aboutAuthorsMenu.setFont(font);
-        aboutMenu.add(aboutAuthorsMenu);
-
-        // Todo: make one function for about-listeners
-        aboutAuthorsMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                AboutAuthors dialog = new AboutAuthors();
-                dialog.pack();
-                dialog.setVisible(true);
-            }
-        });
 
         JMenu newMenu = new JMenu("Save as");
         newMenu.setFont(font);
         fileMenu.add(newMenu);
 
+
         JMenuItem adjMatrFileItem = new JMenuItem("Adjacency matrix");
         adjMatrFileItem.setFont(font);
+
         // сохранить матрицу смежности в файл
         adjMatrFileItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                JFileChooser k = new JFileChooser();
-                File f2 = new File(".").getAbsoluteFile();
-                System.out.println("def dir " + f2.toString());
-                k.setCurrentDirectory(f2);
-                int isres = k.showSaveDialog(getParent());
-
-                // if file was choosen
-                if (isres == JFileChooser.APPROVE_OPTION) {
-                    File f = k.getSelectedFile();
-                    String filename = f.getName();
-                    int ind = tabPanel.getSelectedIndex();
-                    if (filename.equals(""))
-                        filename = String.valueOf(ind);
-                    // получаем матрицу смежности
-                    ArrayList<ArrayList<Integer>> matr = graph.get(ind).getAdjacencyMatrix();
-                    // сохраняем в файл
-                    graph.get(ind).saveAdjacencyMatrix(matr, filename);
-                    graph.get(ind).SetSave();
-
-                }
+                saveAdjacencyMatrix();
             }
         });
+
         newMenu.add(adjMatrFileItem);
 
         JMenuItem incMatrFileItem = new JMenuItem("Incendence matrix");
@@ -281,23 +310,7 @@ public class Form extends JFrame {
         incMatrFileItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                JFileChooser k = new JFileChooser();
-                File f2 = new File(".").getAbsoluteFile();
-                System.out.println("def dir " + f2.toString());
-                k.setCurrentDirectory(f2);
-                int isres = k.showSaveDialog(getParent());
-                if (isres == JFileChooser.APPROVE_OPTION) {
-
-                    File f = k.getSelectedFile();
-                    String filename = f.getName();
-                    int ind = tabPanel.getSelectedIndex();
-                    if (filename.equals(""))
-                        filename = String.valueOf(ind);
-                    ArrayList<ArrayList<Integer>> matr = graph.get(ind).getIncedenceMatrix();
-                    graph.get(ind).saveIncedenceMatrix(matr, filename);
-                    graph.get(ind).SetSave();
-
-                }
+                saveIncedenceMatrix();
             }
         });
         newMenu.add(incMatrFileItem);
@@ -662,7 +675,7 @@ public class Form extends JFrame {
                 if (!isReal) {
                     JOptionPane.showMessageDialog(null, "BFS не возможен для 2х вершин в данном графе");
                 }
-               // System.out.println("max val"+Integer.MAX);
+                // System.out.println("max val"+Integer.MAX);
             }
         });
 

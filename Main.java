@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.ui.Form;
+
 import javax.swing.*;
 
 public class Main {

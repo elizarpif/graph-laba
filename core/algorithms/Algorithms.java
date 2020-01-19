@@ -1,4 +1,4 @@
-package com.company;
+package com.company.core.algorithms;
 
 import java.util.ArrayList;
 
@@ -336,20 +336,6 @@ public class Algorithms {
 
 }
 
-/*--------Ответ-для-лабы-2---------------------------------------------------------------------------------------------*/
-class BFSAnswer{
-    private boolean CorrectWork = true;                                                         //Если алгоритм успешно завершен
-    private ArrayList<Integer> Matrix;                                                          //Лист с путем
-
-    BFSAnswer(boolean a, ArrayList<Integer> b){
-        CorrectWork = a;
-        Matrix = b;
-    }
-
-    public boolean isCorrectWork(){ return CorrectWork; }
-
-    public ArrayList<Integer> Matrix(){ return Matrix; }
-}
 /*--------Ответ-для-лабы-4---------------------------------------------------------------------------------------------*/
 class EccentricityRD{
     private ArrayList<Integer> VertexWeight = new ArrayList<Integer>();                         //Вес каждой вершины или ее эксцентриситет
