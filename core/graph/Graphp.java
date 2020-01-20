@@ -91,6 +91,7 @@ public class Graphp {
         return k;
     }
 
+    // только для направленных!
     public boolean AStar() {
 
         Object[] vs = gadap.getSelectionCells();
@@ -132,21 +133,33 @@ public class Graphp {
 
             for (int i = 0; i < edges; i++) {
 
+
                 mxCell edge = (mxCell) current.getEdgeAt(i);
+
+                // String style = (String) graphcomp.getGraph().getCellStyle(edge).get(mxConstants.STYLE_ENDARROW);
                 mxCell next = (mxCell) edge.getTarget();
+                mxCell source = (mxCell) edge.getSource();
                 int value = isValueInteger(edge.getValue());
+                int trueValue = way + value;
+
+//                if (style.equals("ss") && next == current) { // for undirected
+//                    mxCell tmp = next;
+//                    next = source;
+//                    source = tmp;
+//                }
+
 
                 if (!visited.containsKey(next)) {
 
                     frontier.add(next);
-                    visited.put(next, way + value);
-                    trueWay.put(next, (mxCell) edge.getSource());
+                    visited.put(next, trueValue);
+                    trueWay.put(next, source);
 
-                } else if (visited.get(next) > way + value) {
+                } else if (visited.get(next) > trueValue) {
 
                     frontier.add(next);
-                    visited.replace(next, way + value);
-                    trueWay.replace(next, (mxCell) edge.getSource());
+                    visited.replace(next, trueValue);
+                    trueWay.replace(next, source);
                 }
             }
         }
@@ -159,7 +172,7 @@ public class Graphp {
         // add edges between vertices
         ArrayList<mxCell> edges = new ArrayList<>();
         mxCell temp = g2;
-        while (trueWay.get(temp) !=g1){
+        while (trueWay.get(temp) != g1) {
             mxCell temp2 = trueWay.get(temp);
             edges.add(getEdgeBetweenVertices(temp, temp2));
             temp = temp2;
@@ -174,8 +187,9 @@ public class Graphp {
 
         return true;
     }
-    private mxCell getEdgeBetweenVertices(mxCell v1, mxCell v2){
-        ArrayList<mxCell> temps = objectsToMxCells(graphcomp.getGraph().getEdgesBetween(v2, v1,true));
+
+    private mxCell getEdgeBetweenVertices(mxCell v1, mxCell v2) {
+        ArrayList<mxCell> temps = objectsToMxCells(graphcomp.getGraph().getEdgesBetween(v2, v1, true));
         return temps.get(0);
     }
 
@@ -223,7 +237,7 @@ public class Graphp {
             Object i2 = vertices.get(matrix.get(i + 1));
 
             Object[] edges = gadap.getEdgesBetween(i1, i2);
-            edgesToSave.add((mxCell)edges[0]);
+            edgesToSave.add((mxCell) edges[0]);
             setRedColor(edges);
         }
         saveEdgesListToFile(edgesToSave, "BFS");
@@ -630,6 +644,7 @@ public class Graphp {
     public void ChangeDirectionOff(int x, int y) {
         graphcomp.getGraph().getModel().beginUpdate();
         Object g = graphcomp.getCellAt(x, y);
+
         graphcomp.getGraph().setCellStyles(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_CONNECTOR, new Object[]{g});
         graphcomp.getGraph().setCellStyles(mxConstants.STYLE_ENDARROW, "ss", new Object[]{g});
 
@@ -836,7 +851,7 @@ public class Graphp {
     // Сохранить ребра в файл вида
     // Edges{i(a, k, l, d), . . .}, где i — номер ребра, a — вес ребра,
     // k и l — номера или имена вершин, d — может быть 1 если направлено
-    private void saveEdgesListToFile(ArrayList<mxCell> objs, String filename){
+    private void saveEdgesListToFile(ArrayList<mxCell> objs, String filename) {
         String infile = "";
         for (int i = 0; i < objs.size(); i++) {
             mxCell edge = (mxCell) objs.get(i);
