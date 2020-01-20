@@ -121,7 +121,7 @@ public class Graphp {
         while (!frontier.isEmpty()) {
 
             mxCell current = frontier.get(0);
-            if (current == g2) {
+            if (current.getId().equals(g2.getId())) {
                 isFound = true;
             }
 
@@ -175,7 +175,7 @@ public class Graphp {
         return true;
     }
     private mxCell getEdgeBetweenVertices(mxCell v1, mxCell v2){
-        ArrayList<mxCell> temps = objectsToMxCells(graphcomp.getGraph().getEdgesBetween(v1, v2));
+        ArrayList<mxCell> temps = objectsToMxCells(graphcomp.getGraph().getEdgesBetween(v2, v1,true));
         return temps.get(0);
     }
 
@@ -210,20 +210,23 @@ public class Graphp {
             return false;
 
         ArrayList<Integer> result_verts = res.Matrix();
-        paintEdgesInRedColor(result_verts, vertices);
+        paintEdgesAndSave(result_verts, vertices);
 
         return true;
     }
 
-    // раскраска ребер красным цветом
-    private void paintEdgesInRedColor(ArrayList<Integer> matrix, ArrayList<Object> vertices) {
+    // раскраска ребер красным цветом и сохранение в файл
+    private void paintEdgesAndSave(ArrayList<Integer> matrix, ArrayList<Object> vertices) {
+        ArrayList<mxCell> edgesToSave = new ArrayList<>();
         for (int i = 0; i < matrix.size() - 1; i++) {
             Object i1 = vertices.get(matrix.get(i));
             Object i2 = vertices.get(matrix.get(i + 1));
 
             Object[] edges = gadap.getEdgesBetween(i1, i2);
+            edgesToSave.add((mxCell)edges[0]);
             setRedColor(edges);
         }
+        saveEdgesListToFile(edgesToSave, "BFS");
     }
 
     // установить цвет ребер
@@ -651,11 +654,10 @@ public class Graphp {
         ArrayList<ArrayList<Integer>> matr = getAdjacencyMatrix();
         Object parent = graphcomp.getGraph().getDefaultParent();
         Object[] objs = gadap.getChildVertices(parent);
-        ArrayList<Integer> vertices = new ArrayList<>();
+
         ArrayList<mxCell> verts = new ArrayList<>();
         for (Object obj : objs) {
             mxCell v = (mxCell) obj;
-            vertices.add(Integer.parseInt(v.getId()));
             verts.add(v);
         }
         isUndo = false;
@@ -665,7 +667,7 @@ public class Graphp {
         int j = 0;
         for (int i = 0; i < countEdges; i++) {
             mxCell sourceEdge = (mxCell) verts.get(row).getEdgeAt(i);
-            if (sourceEdge.getSource() == verts.get(row) && sourceEdge.getTarget().getId() == verts.get(col).getId()) {
+            if (sourceEdge.getSource() == verts.get(row) && sourceEdge.getTarget().getId().equals(verts.get(col).getId())) {
                 removeObjs[j] = (Object) sourceEdge;
                 j++;
             }
@@ -846,12 +848,7 @@ public class Graphp {
             else
                 directed = 1;
             infile += String.valueOf(i) + "("; //+weight
-            int edge_weight = 0;
-            try {
-                edge_weight = Integer.parseInt(edge.getValue().toString());
-            } catch (NumberFormatException e) {
-                edge_weight = 0;
-            }
+            int edge_weight = isValueInteger(edge.getValue());
             infile += String.valueOf(edge_weight) + ",";
             infile += edge.getSource().getValue() + ",";
             infile += edge.getTarget().getValue() + ",";
