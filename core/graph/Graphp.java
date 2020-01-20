@@ -179,6 +179,138 @@ public class Graphp {
         return temps.get(0);
     }
 
+
+    public void AStarDeep(){
+        ArrayList<ArrayList<Integer>> m= getAdjacencyMatrix();
+        Stack<Integer> stack1;
+        Stack<Integer> stack2;
+
+
+
+    }
+
+
+    public Stack<Integer> stack;//
+    public int numberOfNodes=0;
+    public int depth=0;
+    public int maxDepth=0;
+    public boolean goalFound = false;
+
+
+
+
+
+    public void iterativeDeeping(ArrayList<ArrayList<Integer>> adjacencyMatrix,int source, int destination)
+    {
+        int adjacency_matrix[][] = new int[adjacencyMatrix.get(0).size()+1][adjacencyMatrix.get(0).size()+1];//[number_of_nodes + 1][number_of_nodes + 1];
+        for (int i = 0; i < adjacencyMatrix.get(0).size(); i++)
+            for (int j = 0; j < adjacencyMatrix.get(0).size(); j++)
+                adjacency_matrix[i][j] = adjacencyMatrix.get(i).get(j);//scanner.nextInt();
+
+
+        System.out.println(adjacency_matrix);
+
+        /////////////////////////////////////////
+        stack = new Stack<Integer>();
+        numberOfNodes = adjacency_matrix[1].length - 1;
+        while (!goalFound&&maxDepth<=adjacencyMatrix.get(0).size())
+        {
+            depthLimitedSearch(adjacency_matrix, 1, 2);//destination);
+            maxDepth++;
+        }
+        System.out.println("\nGoal Found at depth " + depth);
+    }
+
+
+    private void depthLimitedSearch(int adjacencyMatrix[][], int source, int goal)
+    {
+        int element, destination = 1;
+        int[] visited = new int[numberOfNodes + 1];
+        stack.push(source);
+        depth = 0;
+        System.out.println("\nAt Depth " + maxDepth);
+        System.out.print(source + "\t");
+
+        while (!stack.isEmpty())
+        {
+            element = stack.peek();
+            while (destination <= numberOfNodes)
+            {
+                if (depth < maxDepth)
+                {
+                    if (adjacencyMatrix[element][destination] == 1)
+                    {
+                        stack.push(destination);
+                        visited[destination] = 1;
+                        System.out.print(destination + "\t");
+                        depth++;
+                        if (goal == destination)
+                        {
+                            System.out.println("FIND!!!");
+                            goalFound = true;
+                            return;
+                        }
+                        element = destination;
+                        destination = 1;
+                        continue;
+                    }
+                } else
+                {
+
+                    break;
+
+                }
+                destination++;
+            }
+            destination = stack.pop() + 1;
+            depth--;
+        }
+    }
+
+
+
+
+    public void DeepA(ArrayList<ArrayList<Integer>> adjacencyMatrix, int source, int goal){
+        int element, destination = 1;
+        int[] visited = new int[numberOfNodes + 1];
+        stack.push(source);
+        depth = 0;
+        System.out.println("\nAt Depth " + maxDepth);
+        System.out.print(source + "\t");
+
+        while (!stack.isEmpty())
+        {
+            element = stack.peek();
+            while (destination <= numberOfNodes)
+            {
+                if (depth < maxDepth)
+                {
+                    if (adjacencyMatrix.get(element).get(destination) == 1)
+                    {
+                        stack.push(destination);
+                        visited[destination] = 1;
+                        System.out.print(destination + "\t");
+                        depth++;
+                        if (goal == destination)
+                        {
+                            goalFound = true;
+                            return;
+                        }
+                        element = destination;
+                        destination = 1;
+                        continue;
+                    }
+                } else
+                {
+                    break;
+                }
+                destination++;
+            }
+            destination = stack.pop() + 1;
+            depth--;
+        }
+    }
+
     public boolean BFS() {
         Object[] vs = gadap.getSelectionCells();
 

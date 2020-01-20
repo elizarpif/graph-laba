@@ -750,6 +750,18 @@ public class Form extends JFrame {
             }
         });
 
+        JMenuItem DeepA = new JMenuItem("DeepA");
+        DeepA.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                int ind = tabPanel.getSelectedIndex();
+                //  boolean isReal = graph.elementAt(ind).BFS();
+                graph.elementAt(ind).iterativeDeeping(graph.elementAt(ind).getAdjacencyMatrix(), 1, 7);//DeepA(graph.elementAt(ind).getAdjacencyMatrix(), 2, 4);
+
+            }
+        });
+
         popupAddV.add(addVItem);
         popupAddV.add(delSelectVItem);
         popupE.add(deleteEItem);
