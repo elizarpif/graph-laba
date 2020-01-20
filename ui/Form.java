@@ -679,6 +679,20 @@ public class Form extends JFrame {
             }
         });
 
+        JMenuItem aStar = new JMenuItem("A Star");
+        aStar.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                int ind = tabPanel.getSelectedIndex();
+                boolean isReal = graph.elementAt(ind).AStar();
+                if (!isReal) {
+                    JOptionPane.showMessageDialog(null, "A Star не возможен для 2х вершин в данном графе");
+                }
+                // System.out.println("max val"+Integer.MAX);
+            }
+        });
+
         JMenuItem deleteEItem = new JMenuItem("Удалить ребро");
 
         deleteEItem.addMouseListener(new MouseAdapter() {
@@ -747,6 +761,7 @@ public class Form extends JFrame {
         popupV.add(ColorVItem);
         popupV.add(addLoop);
         popupV.add(BFSsearch);
+        popupV.add(aStar);
 
         mxGraphComponent gc = graph.elementAt(tabPanel.getSelectedIndex()).getComp();
 

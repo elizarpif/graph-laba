@@ -38,13 +38,14 @@ public class Graphp {
     private mxParallelEdgeLayout layoutParallel;
     private MatrixExporter<String, MyEdge> matri;
     private int i;
-    private static final String NL = System.getProperty("line.separator");
     private JTable table;
     private int tabindex;
     private Vector<DefaultTableModel> graphmatrix;
     private mxUndoManager undoManager; // то что отвечает за "назад" и "вперед", история
+
     private boolean isSave; // переменная которая хранит значение, юыло ли сохранено
     private boolean isUndo; // переменная определяющая сохранение истории
+
     private int vertexSize;
     private Algorithms algorithm;
 
@@ -68,6 +69,115 @@ public class Graphp {
         isUndo = true;
     }
 
+    private ArrayList<mxCell> objectsToMxCells(Object[] verts) {
+        ArrayList<mxCell> res = new ArrayList<>();
+        for (Object v : verts) {
+            res.add((mxCell) v);
+        }
+        return res;
+    }
+
+    private Object[] mxCellsToObjects(ArrayList<mxCell> edges) {
+        return edges.toArray();
+    }
+
+    private int isValueInteger(Object value) {
+        int k;
+        try {
+            k = Integer.parseInt(value.toString());
+        } catch (NumberFormatException e) {
+            return 1;
+        }
+        return k;
+    }
+
+    public boolean AStar() {
+
+        Object[] vs = gadap.getSelectionCells();
+
+        // если количество выбранных вершин не равно 2
+        if (vs.length != 2)
+            return false;
+
+        mxCell g1 = (mxCell) vs[0];
+        mxCell g2 = (mxCell) vs[1];
+
+        // если один из выбранных объектов - ребро
+        if (g1.isEdge() || g2.isEdge()) {
+            return false;
+        }
+
+
+        HashMap<mxCell, Integer> visited = new HashMap<>();
+        ArrayList<mxCell> frontier = new ArrayList<>();
+        HashMap<mxCell, mxCell> trueWay = new HashMap<>();
+
+        frontier.add(g1);
+
+        boolean isFound = false;
+
+        visited.put(g1, 0);
+
+        while (!frontier.isEmpty()) {
+
+            mxCell current = frontier.get(0);
+            if (current == g2) {
+                isFound = true;
+            }
+
+            frontier.remove(0);
+            Integer way = visited.get(current);
+
+            int edges = current.getEdgeCount();
+
+            for (int i = 0; i < edges; i++) {
+
+                mxCell edge = (mxCell) current.getEdgeAt(i);
+                mxCell next = (mxCell) edge.getTarget();
+                int value = isValueInteger(edge.getValue());
+
+                if (!visited.containsKey(next)) {
+
+                    frontier.add(next);
+                    visited.put(next, way + value);
+                    trueWay.put(next, (mxCell) edge.getSource());
+
+                } else if (visited.get(next) > way + value) {
+
+                    frontier.add(next);
+                    visited.replace(next, way + value);
+                    trueWay.replace(next, (mxCell) edge.getSource());
+                }
+            }
+        }
+
+        // get best way
+        if (!isFound)
+            return false;
+
+
+        // add edges between vertices
+        ArrayList<mxCell> edges = new ArrayList<>();
+        mxCell temp = g2;
+        while (trueWay.get(temp) !=g1){
+            mxCell temp2 = trueWay.get(temp);
+            edges.add(getEdgeBetweenVertices(temp, temp2));
+            temp = temp2;
+        }
+        edges.add(getEdgeBetweenVertices(temp, g1));
+
+        Object[] vals = edges.toArray();
+        setRedColor(vals);
+        //save way to file
+        saveEdgesListToFile(edges, "ASTAR");
+
+
+        return true;
+    }
+    private mxCell getEdgeBetweenVertices(mxCell v1, mxCell v2){
+        ArrayList<mxCell> temps = objectsToMxCells(graphcomp.getGraph().getEdgesBetween(v1, v2));
+        return temps.get(0);
+    }
 
     public boolean BFS() {
         Object[] vs = gadap.getSelectionCells();
@@ -189,6 +299,7 @@ public class Graphp {
             updateMatrixTableEmpty();
         }
     }
+
     // непустая таблица
     private void updateMatrixTableValues(ArrayList<ArrayList<Integer>> matr) {
         ArrayList<Integer> m = matr.get(0);
@@ -230,6 +341,7 @@ public class Graphp {
     public void SetSave() {
         isSave = true;
     }
+
     // был ли граф сохранен?
     public boolean IsSave() {
         return isSave;
@@ -722,12 +834,10 @@ public class Graphp {
     // Сохранить ребра в файл вида
     // Edges{i(a, k, l, d), . . .}, где i — номер ребра, a — вес ребра,
     // k и l — номера или имена вершин, d — может быть 1 если направлено
-    public void saveEdges(String filename) {
+    private void saveEdgesListToFile(ArrayList<mxCell> objs, String filename){
         String infile = "";
-        Object parent = graphcomp.getGraph().getDefaultParent();
-        Object[] objs = gadap.getChildEdges(parent);
-        for (int i = 0; i < objs.length; i++) {
-            mxCell edge = (mxCell) objs[i];
+        for (int i = 0; i < objs.size(); i++) {
+            mxCell edge = (mxCell) objs.get(i);
 
             String style = (String) graphcomp.getGraph().getCellStyle(edge).get(mxConstants.STYLE_ENDARROW);
             int directed;
@@ -752,5 +862,13 @@ public class Graphp {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public void saveEdges(String filename) {
+        String infile = "";
+        Object parent = graphcomp.getGraph().getDefaultParent();
+        Object[] objs = gadap.getChildEdges(parent);
+        saveEdgesListToFile(objectsToMxCells(objs), filename);
     }
 }
