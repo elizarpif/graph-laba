@@ -26,8 +26,8 @@ public class Algorithms {
 
         while(!queue.isEmpty()){
 
-            first = queue.get(queue.size()-1);                                                  //обрабатываем то что находится в очереди первым
-            queue.remove(queue.size()-1);                                                 //удаляем из очереди
+            first = queue.get(0);
+            queue.remove(0);                                             //удаляем из очереди
             for(int i = 0; i < size_mat; i++) {
                 if (!used[i] &&  matrix.get(first).get(i) != 0) {                               //проверяем были ли там уже и является ли вершина смежной
                     used[i] = true;

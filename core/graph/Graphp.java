@@ -91,6 +91,7 @@ public class Graphp {
         return k;
     }
 
+    // только для направленных!
     public boolean AStar() {
 
         Object[] vs = gadap.getSelectionCells();
@@ -121,7 +122,7 @@ public class Graphp {
         while (!frontier.isEmpty()) {
 
             mxCell current = frontier.get(0);
-            if (current == g2) {
+            if (current.getId().equals(g2.getId())) {
                 isFound = true;
             }
 
@@ -132,21 +133,33 @@ public class Graphp {
 
             for (int i = 0; i < edges; i++) {
 
+
                 mxCell edge = (mxCell) current.getEdgeAt(i);
+
+                // String style = (String) graphcomp.getGraph().getCellStyle(edge).get(mxConstants.STYLE_ENDARROW);
                 mxCell next = (mxCell) edge.getTarget();
+                mxCell source = (mxCell) edge.getSource();
                 int value = isValueInteger(edge.getValue());
+                int trueValue = way + value;
+
+//                if (style.equals("ss") && next == current) { // for undirected
+//                    mxCell tmp = next;
+//                    next = source;
+//                    source = tmp;
+//                }
+
 
                 if (!visited.containsKey(next)) {
 
                     frontier.add(next);
-                    visited.put(next, way + value);
-                    trueWay.put(next, (mxCell) edge.getSource());
+                    visited.put(next, trueValue);
+                    trueWay.put(next, source);
 
-                } else if (visited.get(next) > way + value) {
+                } else if (visited.get(next) > trueValue) {
 
                     frontier.add(next);
-                    visited.replace(next, way + value);
-                    trueWay.replace(next, (mxCell) edge.getSource());
+                    visited.replace(next, trueValue);
+                    trueWay.replace(next, source);
                 }
             }
         }
@@ -159,7 +172,7 @@ public class Graphp {
         // add edges between vertices
         ArrayList<mxCell> edges = new ArrayList<>();
         mxCell temp = g2;
-        while (trueWay.get(temp) !=g1){
+        while (trueWay.get(temp) != g1) {
             mxCell temp2 = trueWay.get(temp);
             edges.add(getEdgeBetweenVertices(temp, temp2));
             temp = temp2;
@@ -174,8 +187,9 @@ public class Graphp {
 
         return true;
     }
-    private mxCell getEdgeBetweenVertices(mxCell v1, mxCell v2){
-        ArrayList<mxCell> temps = objectsToMxCells(graphcomp.getGraph().getEdgesBetween(v1, v2));
+
+    private mxCell getEdgeBetweenVertices(mxCell v1, mxCell v2) {
+        ArrayList<mxCell> temps = objectsToMxCells(graphcomp.getGraph().getEdgesBetween(v2, v1, true));
         return temps.get(0);
     }
 
@@ -342,20 +356,23 @@ public class Graphp {
             return false;
 
         ArrayList<Integer> result_verts = res.Matrix();
-        paintEdgesInRedColor(result_verts, vertices);
+        paintEdgesAndSave(result_verts, vertices);
 
         return true;
     }
 
-    // раскраска ребер красным цветом
-    private void paintEdgesInRedColor(ArrayList<Integer> matrix, ArrayList<Object> vertices) {
+    // раскраска ребер красным цветом и сохранение в файл
+    private void paintEdgesAndSave(ArrayList<Integer> matrix, ArrayList<Object> vertices) {
+        ArrayList<mxCell> edgesToSave = new ArrayList<>();
         for (int i = 0; i < matrix.size() - 1; i++) {
             Object i1 = vertices.get(matrix.get(i));
             Object i2 = vertices.get(matrix.get(i + 1));
 
             Object[] edges = gadap.getEdgesBetween(i1, i2);
+            edgesToSave.add((mxCell) edges[0]);
             setRedColor(edges);
         }
+        saveEdgesListToFile(edgesToSave, "BFS");
     }
 
     // установить цвет ребер
@@ -759,6 +776,7 @@ public class Graphp {
     public void ChangeDirectionOff(int x, int y) {
         graphcomp.getGraph().getModel().beginUpdate();
         Object g = graphcomp.getCellAt(x, y);
+
         graphcomp.getGraph().setCellStyles(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_CONNECTOR, new Object[]{g});
         graphcomp.getGraph().setCellStyles(mxConstants.STYLE_ENDARROW, "ss", new Object[]{g});
 
@@ -783,11 +801,10 @@ public class Graphp {
         ArrayList<ArrayList<Integer>> matr = getAdjacencyMatrix();
         Object parent = graphcomp.getGraph().getDefaultParent();
         Object[] objs = gadap.getChildVertices(parent);
-        ArrayList<Integer> vertices = new ArrayList<>();
+
         ArrayList<mxCell> verts = new ArrayList<>();
         for (Object obj : objs) {
             mxCell v = (mxCell) obj;
-            vertices.add(Integer.parseInt(v.getId()));
             verts.add(v);
         }
         isUndo = false;
@@ -797,7 +814,7 @@ public class Graphp {
         int j = 0;
         for (int i = 0; i < countEdges; i++) {
             mxCell sourceEdge = (mxCell) verts.get(row).getEdgeAt(i);
-            if (sourceEdge.getSource() == verts.get(row) && sourceEdge.getTarget().getId() == verts.get(col).getId()) {
+            if (sourceEdge.getSource() == verts.get(row) && sourceEdge.getTarget().getId().equals(verts.get(col).getId())) {
                 removeObjs[j] = (Object) sourceEdge;
                 j++;
             }
@@ -966,7 +983,7 @@ public class Graphp {
     // Сохранить ребра в файл вида
     // Edges{i(a, k, l, d), . . .}, где i — номер ребра, a — вес ребра,
     // k и l — номера или имена вершин, d — может быть 1 если направлено
-    private void saveEdgesListToFile(ArrayList<mxCell> objs, String filename){
+    private void saveEdgesListToFile(ArrayList<mxCell> objs, String filename) {
         String infile = "";
         for (int i = 0; i < objs.size(); i++) {
             mxCell edge = (mxCell) objs.get(i);
@@ -978,12 +995,7 @@ public class Graphp {
             else
                 directed = 1;
             infile += String.valueOf(i) + "("; //+weight
-            int edge_weight = 0;
-            try {
-                edge_weight = Integer.parseInt(edge.getValue().toString());
-            } catch (NumberFormatException e) {
-                edge_weight = 0;
-            }
+            int edge_weight = isValueInteger(edge.getValue());
             infile += String.valueOf(edge_weight) + ",";
             infile += edge.getSource().getValue() + ",";
             infile += edge.getTarget().getValue() + ",";
