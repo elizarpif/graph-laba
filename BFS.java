@@ -313,7 +313,7 @@ public class Algorithms {
 
     public SpanningTreeAnswer SpanningTree(ArrayList<ArrayList<Integer>> matrix, int VersionAlgorithm){
         int matrix_size = matrix.size();
-
+        VersionAlgorithm = 1;
         switch (VersionAlgorithm){
             case 1:
                 ArrayList<Integer> first = new ArrayList<Integer>(), second = new ArrayList<Integer>();
@@ -352,24 +352,16 @@ public class Algorithms {
                 }
                 return new SpanningTreeAnswer(true, first, second);
 
-            case 2:
-
-                break;
-
-            case 3:
-
-                break;
-
         }
         return new SpanningTreeAnswer(false, new ArrayList<Integer>(), new ArrayList<Integer>());
     }
 
     /*----Lab-13--------------------------------------------------------------------------------------------------------*/
 
-    public void CycleProblem(ArrayList<ArrayList<Integer>> matrix){
-        int first = 0, cycle = 0;
-        int size_mat = matrix.get(0).size();
+    public CycleProblemAnswer CycleProblem(ArrayList<ArrayList<Integer>> matrix){
 
+        int size_mat = matrix.get(0).size();
+        int first = 0, cycle = 0;
         boolean[] used = new boolean[size_mat];
 
         ArrayList<Integer> queue = new ArrayList<Integer>();
@@ -383,6 +375,7 @@ public class Algorithms {
         used[first] = true;
 
         boolean exit = false;
+        ArrayList<Integer> forAnsw = new ArrayList<Integer>();
         while(!queue.isEmpty()) {
 
             first = queue.get(0);
@@ -394,13 +387,20 @@ public class Algorithms {
                     ancestor[i] = first;
                 }
             }
-            for (int i = 1; i < queue.size(); i++) {
+
+            for (int i = 0; i < queue.size()-1; i++) {
                 for (int j = i; j < queue.size(); j++) {
-                    if (matrix.get(queue.get(i)).get(j) == 1 && used[j])
-                        cycle++;
+                    forAnsw.add(queue.get(j));
+                    if (queue.get(i) == queue.get(i+1) && used[j]) {
+                        forAnsw.add(queue.get(0));
+                        return new CycleProblemAnswer(true, 0, 0, 0, forAnsw);
+                    }
                 }
             }
         }
+        if(1 == 1)return new CycleProblemAnswer(true, 0, 0, 0, forAnsw);
+        for (int i = 2; i < ancestor.length; i++)
+            System.out.print(ancestor[i] + " ");
 
         int[][] TreeCenter = DeikstraMatrix(matrix);
         int vertexnum = -1, min = Integer.MAX_VALUE/2;
@@ -416,12 +416,79 @@ public class Algorithms {
                 vertexnum = i;
             }
         }
-        
-        System.out.println(cycle);
-        return;
+        return new CycleProblemAnswer(false, 1,1,1, new ArrayList<Integer>());
     }
 
     /*----Lab-14--------------------------------------------------------------------------------------------------------*/
+    public ColoringGraphAnswer ColoringGraph(ArrayList<ArrayList<Integer>> matrix){
+        int size_mat = matrix.get(0).size();
+        int color_index = 0;
+        boolean[] used = new boolean[size_mat];
+        int[] colored = new int[size_mat];
+
+        for (int i = 0; i < size_mat; i++)
+            used[i] = false;
+
+        for(int i = 0; i < size_mat; i++){
+            if(!used[i]){
+                used[i] = true;
+                colored[i] = color_index;
+                for(int j = i + 1; j < size_mat; j++)
+                {
+                    if(matrix.get(i).get(j) == 0){
+                        used[j] = true;
+                        colored[j] = color_index;
+                        for(int k = j; k < size_mat; k++)
+                            matrix.get(i).set(k, (matrix.get(i).get(k) == 0 && matrix.get(j).get(k) == 0)?0:1);
+                    }
+                }
+                color_index++;
+            }
+        }
+        return new ColoringGraphAnswer(color_index, colored);
+    }
+
+    /*----Lab-15--------------------------------------------------------------------------------------------------------*/
+
+    public void WeddingTask(ArrayList<ArrayList<Integer>> matrix, int[] FirstShare, int[] SecondShare){
+        int size_mat = matrix.get(0).size();
+
+        boolean[] used = new boolean[size_mat];
+        int[] modtwo = new int[size_mat];
+        int first = FirstShare[0];
+        ArrayList<Integer> queue = new ArrayList<Integer>();
+        queue.add(first);
+        modtwo[first] = 1;
+
+
+        int[] ancestor = new int[size_mat];
+        for (int i = 0; i < size_mat; i++)
+            ancestor[i] = -1;
+        ancestor[first] = first;
+
+        used[first] = true;
+
+        while(!queue.isEmpty()){
+            System.out.println(queue);
+            first = queue.get(0);
+            queue.remove(0);
+            for(int i = 0; i < size_mat; i++) {
+                if (!used[i] && matrix.get(first).get(i) != 0) {
+                    used[i] = true;
+                    queue.add(i);
+                    ancestor[i] = first;
+                    modtwo[i] = (modtwo[first] == 1)?2:1;
+                }
+            }
+        }
+        if(FirstShare.length != SecondShare.length)return;
+        else{
+            for(int i = 0; i < size_mat; i++)
+                if(modtwo[i] == 1){
+                    if(!FirstShare.equals(i))return;
+                }
+        }
+    }
 
     /*----------------------------------------------------------------------------------------------------------Цэ-кит-*/
 
@@ -563,4 +630,38 @@ class SpanningTreeAnswer{
     public ArrayList<Integer> GetSecondVertex(){ return SecondVertex; }
     public boolean isCorrectWork(){ return AlghorithmWork; }
 
+}
+/*--------Ответ-для-лабы-13---------------------------------------------------------------------------------------------*/
+class CycleProblemAnswer{
+    private boolean HavingCycle;
+    private int VertexCenter, Depth;
+    private float PrefuerCode;
+    private ArrayList<Integer> MinCycle;
+
+    CycleProblemAnswer(boolean havecycle, int center, int depth, float code, ArrayList<Integer> mincycle){
+        HavingCycle = havecycle;
+        VertexCenter = center;
+        Depth = depth;
+        PrefuerCode = code;
+        MinCycle = mincycle;
+    }
+
+    public boolean HavingCycle(){ return HavingCycle; }
+    public int GetVertexCenter(){ return VertexCenter; }
+    public int GetDepth(){ return Depth; }
+    public float GetPrefuerCode(){ return PrefuerCode; }
+    public ArrayList<Integer> GetMinCycle(){ return MinCycle; }
+}
+/*--------Ответ-для-лабы-14---------------------------------------------------------------------------------------------*/
+class ColoringGraphAnswer{
+    private int ColorIndex;
+    private int[] ColoredNum;
+
+    ColoringGraphAnswer(int index, int[] colored){
+        ColorIndex = index;
+        ColoredNum = colored;
+    }
+
+    public int GetColorIndex(){ return ColorIndex; }
+    public int[] GetColoredNum(){ return ColoredNum; }
 }
