@@ -14,7 +14,7 @@ public class Algorithms {
 
         boolean[] used = new boolean[size_mat];                                                 //если true то вершину уже посетили, false - не посетили
 
-        ArrayList<Integer> queue = new ArrayList<Integer>();                                    //очередь из вершин
+        ArrayList<Integer> queue = new ArrayList<Integer>();                                          //очередь из вершин
         queue.add(first);                                                                       //добавляем вершину из которой начали обход
 
         int[] ancestor = new int[size_mat];                                                     //массив предков
@@ -24,15 +24,17 @@ public class Algorithms {
 
         used[first] = true;                                                                     //помечаем начальную вершину как посещенную
 
+        boolean exit = false;
         while(!queue.isEmpty()){
 
-            first = queue.get(queue.size()-1);                                                  //обрабатываем то что находится в очереди первым
-            queue.remove(queue.size()-1);                                                 //удаляем из очереди
+            first = queue.get(0);                                                  //обрабатываем то что находится в очереди первым
+            queue.remove(0);                                                 //удаляем из очереди
             for(int i = 0; i < size_mat; i++) {
-                if (!used[i] &&  matrix.get(first).get(i) != 0) {                               //проверяем были ли там уже и является ли вершина смежной
+                if (!used[i] && matrix.get(first).get(i) != 0) {                               //проверяем были ли там уже и является ли вершина смежной
                     used[i] = true;
                     queue.add(i);                                                               //добавляем в очередь чтобы потом обработать
-                    ancestor[i] =  first;                                                       //устанавливаем предка для всех смежных вершин
+                    ancestor[i] = first;                                                       //устанавливаем предка для всех смежных вершин
+
                 }
             }
         }
@@ -207,7 +209,7 @@ public class Algorithms {
                             break;
                         } else first = -1;
 
-                        ForAnswer.AddComponent(component);
+                    ForAnswer.AddComponent(component);
                 }
             }
             for (int i = 0; i < ForAnswer.GetComponent().size(); i++)
@@ -228,12 +230,16 @@ public class Algorithms {
     public AdditionalGraph AdditionGraph(ArrayList<ArrayList<Integer>> matrix){
         int matrix_size = matrix.size();
 
-        for (int i = 0; i < matrix_size; i++)
-            for (int j = 0; j < matrix_size; j++)
-                matrix.get(i).set(j, (matrix.get(i).get(j) == 0)?1:0);                          //Меняем все значения на противоположные, чтобы получить дополнение
+        if(!TestYourMatrix(matrix, 0)){
+            for (int i = 0; i < matrix_size; i++)
+                for (int j = 0; j < matrix_size; j++)
+                    matrix.get(i).set(j, (matrix.get(i).get(j) == 0)?1:0);
 
-        return new AdditionalGraph(!TestYourMatrix(matrix, 0), matrix);                      //TestYourMatrix проверит всеэлементы и если везде был 0
-    }                                                                                           //то начальный граф полный
+            return new AdditionalGraph(false, matrix);
+        }
+
+        return new AdditionalGraph(true, matrix);
+    }
 
     /*----Lab-8--------------------------------------------------------------------------------------------------------*/
 
@@ -291,14 +297,140 @@ public class Algorithms {
         return ResultArray;
     }
 
+    /*----Lab-9--------------------------------------------------------------------------------------------------------*/
+
+    public PlanarityAnswer Planarity(ArrayList<ArrayList<Integer>> matrix){
+        int matrix_size = matrix.size();
+
+        return new PlanarityAnswer(true, true, new ArrayList<ArrayList<Integer>>());
+    }
+
+    /*----Lab-10--------------------------------------------------------------------------------------------------------*/
+
+    /*----Lab-11--------------------------------------------------------------------------------------------------------*/
+
+    /*----Lab-12--------------------------------------------------------------------------------------------------------*/
+
+    public SpanningTreeAnswer SpanningTree(ArrayList<ArrayList<Integer>> matrix, int VersionAlgorithm){
+        int matrix_size = matrix.size();
+
+        switch (VersionAlgorithm){
+            case 1:
+                ArrayList<Integer> first = new ArrayList<Integer>(), second = new ArrayList<Integer>();
+                ArrayList<Boolean> used = new ArrayList<Boolean>(matrix_size);
+                ArrayList<Integer> min_e = new ArrayList<Integer>(matrix_size), sel_e  = new ArrayList<Integer>(matrix_size);
+                for(int i = 0; i < matrix_size; i++) {
+                    used.add(false);
+                    min_e.add(Integer.MAX_VALUE/2);
+                    sel_e.add(-1);
+                }
+
+                min_e.set(0, 0);
+                for(int i = 0; i < matrix_size; i++){
+                    int vertex = -1;
+                    for (int j = 0; j < matrix_size; j++)
+                        if(!used.get(j) && (vertex == -1 || min_e.get(j) < min_e.get(vertex)))
+                            vertex = j;
+
+                    if(min_e.get(vertex) == Integer.MAX_VALUE/2){
+                        System.out.println("Нельзя построить");
+                        return new SpanningTreeAnswer(false, new ArrayList<Integer>(), new ArrayList<Integer>());
+                    }
+
+                    used.set(vertex, true);
+
+                    if(sel_e.get(vertex) != -1) {
+                        first.add(sel_e.get(vertex));
+                        second.add(vertex);
+                    }
+
+                    for (int j = 0; j < matrix_size; j++)
+                        if(matrix.get(vertex).get(j) != 0 && matrix.get(vertex).get(j) < min_e.get(j)){
+                            min_e.set(j, matrix.get(vertex).get(j));
+                            sel_e.set(j, vertex);
+                        }
+                }
+                return new SpanningTreeAnswer(true, first, second);
+
+            case 2:
+
+                break;
+
+            case 3:
+
+                break;
+
+        }
+        return new SpanningTreeAnswer(false, new ArrayList<Integer>(), new ArrayList<Integer>());
+    }
+
+    /*----Lab-13--------------------------------------------------------------------------------------------------------*/
+
+    public void CycleProblem(ArrayList<ArrayList<Integer>> matrix){
+        int first = 0, cycle = 0;
+        int size_mat = matrix.get(0).size();
+
+        boolean[] used = new boolean[size_mat];
+
+        ArrayList<Integer> queue = new ArrayList<Integer>();
+        queue.add(first);
+
+        int[] ancestor = new int[size_mat];
+        for (int i = 0; i < size_mat; i++)
+            ancestor[i] = -1;
+        ancestor[first] = first;
+
+        used[first] = true;
+
+        boolean exit = false;
+        while(!queue.isEmpty()) {
+
+            first = queue.get(0);
+            queue.remove(0);
+            for (int i = 0; i < size_mat; i++) {
+                if (!used[i] && matrix.get(first).get(i) != 0) {
+                    used[i] = true;
+                    queue.add(i);
+                    ancestor[i] = first;
+                }
+            }
+            for (int i = 1; i < queue.size(); i++) {
+                for (int j = i; j < queue.size(); j++) {
+                    if (matrix.get(queue.get(i)).get(j) == 1 && used[j])
+                        cycle++;
+                }
+            }
+        }
+
+        int[][] TreeCenter = DeikstraMatrix(matrix);
+        int vertexnum = -1, min = Integer.MAX_VALUE/2;
+
+        for (int i = 0; i < TreeCenter.length; i++) {
+            int max = 0;
+            for (int j = 0; j < TreeCenter.length; j++)
+                if(TreeCenter[i][j] > max)
+                    max = TreeCenter[i][j];
+
+            if(min > max){
+                min = max;
+                vertexnum = i;
+            }
+        }
+        
+        System.out.println(cycle);
+        return;
+    }
+
+    /*----Lab-14--------------------------------------------------------------------------------------------------------*/
+
     /*----------------------------------------------------------------------------------------------------------Цэ-кит-*/
 
     /*----Служебные-функции-пусть-будут-туть---------------------------------------------------------------------------*/
     public boolean TestYourMatrix(ArrayList<ArrayList<Integer>> matrix, int a){
         for (int i = 0; i < matrix.get(0).size(); i++)
             for (int j = 0; j < matrix.get(0).size(); j++)
-                if(matrix.get(i).get(j) > a)return true;
-        return false;
+                if(!(matrix.get(i).get(j) > a))return false;
+        return true;
     }
 
     public int[] PowerVertex(ArrayList<ArrayList<Integer>> matrix) {                            //Степень матриц
@@ -347,7 +479,6 @@ class BFSAnswer{
     }
 
     public boolean isCorrectWork(){ return CorrectWork; }
-
     public ArrayList<Integer> Matrix(){ return Matrix; }
 }
 /*--------Ответ-для-лабы-4---------------------------------------------------------------------------------------------*/
@@ -364,11 +495,8 @@ class EccentricityRD{
     }
 
     public ArrayList<Integer> GetVertexWeight(){ return VertexWeight; }
-
     public int GetRadius(){ return Radius; }
-
     public int GetDiametr(){ return Diametr; }
-
     public int[] GetPowerVertex(){ return PowerVertex; }
 }
 /*--------Ответ-для-лабы-6---------------------------------------------------------------------------------------------*/
@@ -388,11 +516,8 @@ class ConnectivityGraph{
     }
 
     public void AddComponent(ArrayList<Integer> component){ ConnectivityComponent.add(component); }
-
     public void AddBridge(){ Bridge++; }
-
     public ArrayList<ArrayList<Integer>> GetComponent(){ return ConnectivityComponent; }
-
     public int GetBridge(){ return Bridge; }
 }
 /*--------Ответ-для-лабы-7---------------------------------------------------------------------------------------------*/
@@ -406,6 +531,36 @@ class AdditionalGraph{
     }
 
     public boolean isFullGraph(){ return FullGraph; }
-
     public ArrayList<ArrayList<Integer>> GetGraph(){ return Matrix; }
+}
+/*--------Ответ-для-лабы-9---------------------------------------------------------------------------------------------*/
+class PlanarityAnswer{
+    private boolean Flat, Planarity;
+    private ArrayList<ArrayList<Integer>> Matrix;
+
+    PlanarityAnswer(boolean flat, boolean planarity, ArrayList<ArrayList<Integer>> matrix){
+        Flat = flat;
+        Planarity = planarity;
+        Matrix = matrix;
+    }
+
+    public boolean isFlat(){ return Flat;}
+    public boolean isPlanarity(){ return Planarity;}
+    public ArrayList<ArrayList<Integer>> GetDualGraph(){ return Matrix;}
+}
+/*--------Ответ-для-лабы-12---------------------------------------------------------------------------------------------*/
+class SpanningTreeAnswer{
+    private boolean AlghorithmWork;
+    private ArrayList<Integer> FirstVertex, SecondVertex;
+
+    SpanningTreeAnswer(boolean workstat, ArrayList<Integer> first, ArrayList<Integer> second){
+        AlghorithmWork = workstat;
+        FirstVertex = new ArrayList<Integer>(first);
+        SecondVertex = new ArrayList<Integer>(second);
+    }
+
+    public ArrayList<Integer> GetFirstVertex(){ return FirstVertex; }
+    public ArrayList<Integer> GetSecondVertex(){ return SecondVertex; }
+    public boolean isCorrectWork(){ return AlghorithmWork; }
+
 }
