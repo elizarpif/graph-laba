@@ -135,23 +135,26 @@ public class Algorithms {
 
     /*----Lab-5--------------------------------------------------------------------------------------------------------*/
 
-    public void Isomorphism(ArrayList<ArrayList<Integer>> matrix1, ArrayList<ArrayList<Integer>> matrix2){
+    public IsomorphismAnswer Isomorphism(ArrayList<ArrayList<Integer>> matrix1, ArrayList<ArrayList<Integer>> matrix2){
         int[] PowerMatrix1 = PowerVertex(matrix1);                                              //Степени вершин матриц
         int[] PowerMatrix2 = PowerVertex(matrix2);
 
-        if(PowerMatrix1 != PowerMatrix2)System.out.println("1");                                //Если вектора степеней матриц равны, то сильно неизоморфны
+        if(PowerMatrix1 != PowerMatrix2)return new IsomorphismAnswer("Сильно неизоформны");
+        ArrayList<ArrayList<Integer>> ulman = new ArrayList<ArrayList<Integer>>();
 
-        ArrayList<ArrayList<Integer>> a = new ArrayList<ArrayList<Integer>>(), b = new ArrayList<ArrayList<Integer>>();
-        for (int i = 0; i < matrix1.size(); i++){
-            //a.get(i).set(i, 1);
-            //b.get(i).set(i, 1);
+        for(int i = 0; i < PowerMatrix1.length; i++){
+            ArrayList<Integer> rec = new ArrayList<Integer>();
+            for (int j = 0; j < PowerMatrix1.length; j++)
+                rec.add((PowerMatrix1[i] != 0 || PowerMatrix2[i] != 0)?1:0);
+            ulman.add(rec);
         }
 
-        //b = TMatrix(b);
-        //matrix1 = MatrixX(MatrixX(b, matrix1), a);
-
-        if (matrix1 == matrix2)System.out.println("2");
-
+        for(int i = 0; i < PowerMatrix1.length; i++){
+            for(int j = 0; j < PowerMatrix1.length; j++){
+                if(ulman.get(i).get(j) == 0)return new IsomorphismAnswer("Неизоморфны");
+            }
+        }
+        return new IsomorphismAnswer("Изоморфны");
     }
 
     /*----Lab-6--------------------------------------------------------------------------------------------------------*/
@@ -398,9 +401,9 @@ public class Algorithms {
                 }
             }
         }
-        if(1 == 1)return new CycleProblemAnswer(true, 0, 0, 0, forAnsw);
+        float b = 0;
         for (int i = 2; i < ancestor.length; i++)
-            System.out.print(ancestor[i] + " ");
+            b += b *10 + ancestor[i];
 
         int[][] TreeCenter = DeikstraMatrix(matrix);
         int vertexnum = -1, min = Integer.MAX_VALUE/2;
@@ -416,7 +419,7 @@ public class Algorithms {
                 vertexnum = i;
             }
         }
-        return new CycleProblemAnswer(false, 1,1,1, new ArrayList<Integer>());
+        return new CycleProblemAnswer(false, vertexnum, min, b, new ArrayList<Integer>());
     }
 
     /*----Lab-14--------------------------------------------------------------------------------------------------------*/
@@ -645,6 +648,16 @@ class EccentricityRD{
     public int GetRadius(){ return Radius; }
     public int GetDiametr(){ return Diametr; }
     public int[] GetPowerVertex(){ return PowerVertex; }
+}
+/*--------Ответ-для-лабы-5---------------------------------------------------------------------------------------------*/
+class IsomorphismAnswer{
+    String isomorph;
+
+    IsomorphismAnswer(String isom){
+        isomorph = isom;
+    }
+
+    public String GetIsomorph(){ return isomorph; }
 }
 /*--------Ответ-для-лабы-6---------------------------------------------------------------------------------------------*/
 class ConnectivityGraph{
