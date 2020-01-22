@@ -189,8 +189,7 @@ public class Graphp {
         } else {
 
             updateMatrixTableValues(ag.GetGraph());
-
-           /* // fromAdjacencyMatrixString(ag.GetGraph().toString());
+            // fromAdjacencyMatrixString(ag.GetGraph().toString());
             System.out.println(ag.GetGraph().toString());
             String m = ag.GetGraph().toString();
             String mr = m.replace("],", "\n");
@@ -198,7 +197,7 @@ public class Graphp {
             mr = mr.replace("]", "");
             mr = mr.replace(" ", "");
             System.out.println("String" + mr);
-            fromAdjacencyMatrixString(mr);*/
+            fromAdjacencyMatrixString(mr+"\n");
 
 
         }
