@@ -1,5 +1,6 @@
 package com.company.ui;
 
+import com.company.core.algorithms.EccentricityRD;
 import com.company.core.graph.Graphp;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
@@ -655,6 +656,19 @@ public class Form extends JFrame {
             }
         });
 
+
+        JMenuItem DeikstraAlg = new JMenuItem("Дейкстра для этой вершины");
+
+        DeikstraAlg.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                int ind = tabPanel.getSelectedIndex();
+                graph.elementAt(ind).DeikstraAlg();
+            }
+        });
+
+
         JMenuItem addLoop = new JMenuItem("Добавить петлю");
         addLoop.addMouseListener(new MouseAdapter() {
             @Override
@@ -717,6 +731,63 @@ public class Form extends JFrame {
             }
         });
 
+        JMenuItem AllDeikstra = new JMenuItem("Матрица дейкстры");
+
+        AllDeikstra.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                int ind = tabPanel.getSelectedIndex();
+                graph.elementAt(ind).allDeikstra();
+            }
+        });
+        JMenuItem EccentricityRD = new JMenuItem("Эксцентриситет, радиус, диаметр и степени");
+
+        EccentricityRD.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                int ind = tabPanel.getSelectedIndex();
+                graph.elementAt(ind).Eccentricity();
+
+            }
+        });
+
+        JMenuItem ConnectivityOr = new JMenuItem("Все о связности и прочем для ориентированного");
+
+        ConnectivityOr.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                int ind = tabPanel.getSelectedIndex();
+                graph.elementAt(ind).Connectivity(true);
+
+            }
+        });
+        JMenuItem ConnectivityNOr = new JMenuItem("Все о связности и прочем для неориентированного");
+
+        ConnectivityNOr.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                int ind = tabPanel.getSelectedIndex();
+                graph.elementAt(ind).Connectivity(false);
+
+            }
+        });
+
+        JMenuItem Additional = new JMenuItem("Дополнение для графа");
+
+        Additional.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                int ind = tabPanel.getSelectedIndex();
+                graph.elementAt(ind).Additional();
+
+            }
+        });
+
         JMenuItem delSelectVItem = new JMenuItem("Снять выделения");
 
         delSelectVItem.addMouseListener(new MouseAdapter() {
@@ -763,12 +834,18 @@ public class Form extends JFrame {
         });
 
         popupAddV.add(addVItem);
+        popupAddV.add(Additional);
+        popupAddV.add(ConnectivityOr);
+        popupAddV.add(ConnectivityNOr);
+        popupAddV.add(AllDeikstra);
+        popupAddV.add(EccentricityRD);
         popupAddV.add(delSelectVItem);
         popupE.add(deleteEItem);
         popupE.add(ColorEItem);
         popupE.add(directItemOff);
         popupE.add(directItemOn);
         popupV.add(deleteVItem);
+        popupV.add(DeikstraAlg);
         popupV.add(StyleVMenu);
         popupV.add(ColorVItem);
         popupV.add(addLoop);

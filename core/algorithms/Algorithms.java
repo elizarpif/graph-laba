@@ -339,61 +339,8 @@ public class Algorithms {
 }
 
 /*--------Ответ-для-лабы-4---------------------------------------------------------------------------------------------*/
-class EccentricityRD{
-    private ArrayList<Integer> VertexWeight = new ArrayList<Integer>();                         //Вес каждой вершины или ее эксцентриситет
-    private int Radius, Diametr;                                                                //Радиус, диаметр
-    private int[] PowerVertex;                                                                  //Степени вершин
 
-    EccentricityRD(ArrayList<Integer> verWeight, int rad, int diam, int[] power){
-        VertexWeight = verWeight;
-        Radius = rad;
-        Diametr = diam;
-        PowerVertex = power;
-    }
-
-    public ArrayList<Integer> GetVertexWeight(){ return VertexWeight; }
-
-    public int GetRadius(){ return Radius; }
-
-    public int GetDiametr(){ return Diametr; }
-
-    public int[] GetPowerVertex(){ return PowerVertex; }
-}
 /*--------Ответ-для-лабы-6---------------------------------------------------------------------------------------------*/
-class ConnectivityGraph{
-    private String Connectivity = "Не связный";
-    private ArrayList<ArrayList<Integer>> ConnectivityComponent = new ArrayList<ArrayList<Integer>>();
-    private int Bridge = 0;
-    private int Hinge = 0;
-
-    ConnectivityGraph(){}
-
-    ConnectivityGraph(String connect, ArrayList<ArrayList<Integer>> connectcomponent, int bridge, int hinge){
-        Connectivity = connect;
-        ConnectivityComponent = connectcomponent;
-        Bridge = bridge;
-        Hinge = hinge;
-    }
-
-    public void AddComponent(ArrayList<Integer> component){ ConnectivityComponent.add(component); }
-
-    public void AddBridge(){ Bridge++; }
-
-    public ArrayList<ArrayList<Integer>> GetComponent(){ return ConnectivityComponent; }
-
-    public int GetBridge(){ return Bridge; }
-}
 /*--------Ответ-для-лабы-7---------------------------------------------------------------------------------------------*/
-class AdditionalGraph{
-    private boolean FullGraph;
-    private ArrayList<ArrayList<Integer>> Matrix;
 
-    AdditionalGraph(boolean fullgraph, ArrayList<ArrayList<Integer>> matrix){
-        FullGraph = fullgraph;
-        Matrix = matrix;
-    }
 
-    public boolean isFullGraph(){ return FullGraph; }
-
-    public ArrayList<ArrayList<Integer>> GetGraph(){ return Matrix; }
-}
