@@ -139,7 +139,7 @@ public class Algorithms {
         int[] PowerMatrix1 = PowerVertex(matrix1);                                              //Степени вершин матриц
         int[] PowerMatrix2 = PowerVertex(matrix2);
 
-        if(PowerMatrix1 != PowerMatrix2)return new IsomorphismAnswer("Сильно неизоформны");
+        if(PowerMatrix1.equals(PowerMatrix2))return new IsomorphismAnswer("Сильно неизоформны");
         ArrayList<ArrayList<Integer>> ulman = new ArrayList<ArrayList<Integer>>();
 
         for(int i = 0; i < PowerMatrix1.length; i++){
@@ -453,7 +453,7 @@ public class Algorithms {
 
     /*----Lab-15--------------------------------------------------------------------------------------------------------*/
 
-    public void WeddingTask(ArrayList<ArrayList<Integer>> matrix, int[] FirstShare, int[] SecondShare){
+    public WeddingTaskAnswer WeddingTask(ArrayList<ArrayList<Integer>> matrix, int[] FirstShare, int[] SecondShare){
         int size_mat = matrix.get(0).size();
 
         boolean[] used = new boolean[size_mat];
@@ -484,13 +484,12 @@ public class Algorithms {
                 }
             }
         }
-        if(FirstShare.length != SecondShare.length)return;
-        else{
-            for(int i = 0; i < size_mat; i++)
-                if(modtwo[i] == 1){
-                    if(!FirstShare.equals(i))return;
-                }
-        }
+        for(int i = 0; i < size_mat; i++)
+            if(modtwo[i] == 1){
+                if(!FirstShare.equals(i))return new WeddingTaskAnswer(false, false);
+            }
+        return new WeddingTaskAnswer(true, FirstShare.length == SecondShare.length);
+
     }
     /*----Lab-20--------------------------------------------------------------------------------------------------------*/
 
@@ -507,24 +506,24 @@ public class Algorithms {
             }
 
         for (int i = 0; i < size_mat; i++){
-                int max = 0, nummax = 0;
-                for(int k = 0; k < size_mat; k++)
-                    if(Domin[k] > max && !used[k]) {
-                        max = Domin[k];
-                        nummax = k;
-                    }
-
-                Domin[nummax] = 0;
-                used[nummax] = true;
-                if(max == 0){
-                    break;
-                } else {
-                    for (int k = 0; k < size_mat; k++) {
-                        if (matrix.get(nummax).get(k) != 0) used[k] = true;
-                    }
-                    DominCounter++;
+            int max = 0, nummax = 0;
+            for(int k = 0; k < size_mat; k++)
+                if(Domin[k] > max && !used[k]) {
+                    max = Domin[k];
+                    nummax = k;
                 }
+
+            Domin[nummax] = 0;
+            used[nummax] = true;
+            if(max == 0){
+                break;
+            } else {
+                for (int k = 0; k < size_mat; k++) {
+                    if (matrix.get(nummax).get(k) != 0) used[k] = true;
+                }
+                DominCounter++;
             }
+        }
 
         for (int i = 0; i < size_mat; i++){
             int max = Integer.MAX_VALUE/2, nummax = Integer.MAX_VALUE/2;
@@ -757,6 +756,19 @@ class ColoringGraphAnswer{
 
     public int GetColorIndex(){ return ColorIndex; }
     public int[] GetColoredNum(){ return ColoredNum; }
+}
+/*--------Ответ-для-лабы-15---------------------------------------------------------------------------------------------*/
+class WeddingTaskAnswer{
+    boolean bipartite, wedding;
+
+    WeddingTaskAnswer(boolean bip, boolean wed){
+        bipartite = bip;
+        wedding = wed;
+    }
+
+    public boolean isBipartite(){ return bipartite; }
+    public boolean isWedding(){ return wedding; }
+
 }
 /*--------Ответ-для-лабы-20---------------------------------------------------------------------------------------------*/
 class DominanceOverwhelmingMultitudeAnswer{
