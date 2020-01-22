@@ -160,7 +160,7 @@ public class Graphp {
         // add edges between vertices
         ArrayList<mxCell> edges = new ArrayList<>();
         mxCell temp = g2;
-        while (trueWay.get(temp) !=g1){
+        while (trueWay.get(temp) != g1) {
             mxCell temp2 = trueWay.get(temp);
             edges.add(getEdgeBetweenVertices(temp, temp2));
             temp = temp2;
@@ -175,102 +175,102 @@ public class Graphp {
 
         return true;
     }
-    private mxCell getEdgeBetweenVertices(mxCell v1, mxCell v2){
+
+    private mxCell getEdgeBetweenVertices(mxCell v1, mxCell v2) {
         ArrayList<mxCell> temps = objectsToMxCells(graphcomp.getGraph().getEdgesBetween(v1, v2));
         return temps.get(0);
     }
 
 
-    public void Additional(){
-        AdditionalGraph ag=algorithm.AdditionGraph(getAdjacencyMatrix());
-        if(ag.isFullGraph()){
-            JOptionPane.showMessageDialog(null,"Граф полный");
-        }else {
-            //ag.GetGraph()
+    public void Additional() {
+        AdditionalGraph ag = algorithm.AdditionGraph(getAdjacencyMatrix());
+        if (ag.isFullGraph()) {
+            JOptionPane.showMessageDialog(null, "Граф полный");
+        } else {
+
             updateMatrixTableValues(ag.GetGraph());
-           // fromAdjacencyMatrixString(ag.GetGraph().toString());
-          System.out.println(ag.GetGraph().toString());
-            String m=ag.GetGraph().toString();
-           String mr= m.replace("],", "\n");
-            mr=mr.replace("[","");
-            mr=mr.replace("]","");
-            mr=mr.replace(" ","");
-            System.out.println("String"+mr);
-            fromAdjacencyMatrixString(mr);
+
+           /* // fromAdjacencyMatrixString(ag.GetGraph().toString());
+            System.out.println(ag.GetGraph().toString());
+            String m = ag.GetGraph().toString();
+            String mr = m.replace("],", "\n");
+            mr = mr.replace("[", "");
+            mr = mr.replace("]", "");
+            mr = mr.replace(" ", "");
+            System.out.println("String" + mr);
+            fromAdjacencyMatrixString(mr);*/
 
 
         }
     }
 
-    public  void Connectivity(boolean con){
-        ConnectivityGraph cg = algorithm.ConnectivityGraph(getAdjacencyMatrix(),con);
-        int b=cg.Bridge;
-        String c=cg.Connectivity;
-        int h=cg.Hinge;
-        ArrayList<ArrayList<Integer>> cc=cg.ConnectivityComponent;
-        String s="";
+    public void Connectivity(boolean con) {
+        ConnectivityGraph cg = algorithm.ConnectivityGraph(getAdjacencyMatrix(), con);
+        int b = cg.Bridge;
+        String c = cg.Connectivity;
+        int h = cg.Hinge;
+        ArrayList<ArrayList<Integer>> cc = cg.ConnectivityComponent;
+        String s = "";
 
-        s=s+"Связный:"+c+System.lineSeparator();
-        s=s+"Мостов:"+b+System.lineSeparator();
-        s=s+"Шарниров:"+h+System.lineSeparator();
-        s=s+"Компоненты связности:"+System.lineSeparator();
-        s=s+cc.toString();
+        s = s + "Связный:" + c + System.lineSeparator();
+        s = s + "Мостов:" + b + System.lineSeparator();
+        s = s + "Шарниров:" + h + System.lineSeparator();
+        s = s + "Компоненты связности:" + System.lineSeparator();
+        s = s + cc.toString();
 
-        JOptionPane.showMessageDialog(null,s);
-
-
-
-    }
-
-    public void Eccentricity(){
-        EccentricityRD e=algorithm.EccentricityRD(getAdjacencyMatrix());
-        int d=e.GetDiametr();
-        int r=e.GetRadius();
-        int[] pv=e.GetPowerVertex();
-        ArrayList<Integer> vw=e.GetVertexWeight();
-        String s="";
-
-        s="Диаметр:"+d+System.lineSeparator();
-        s=s+"Радиус:"+r+System.lineSeparator();
-        s=s+"Вектор степней:"+System.lineSeparator();
-
-        for (int i=0;i<pv.length;i++){
-            s=s+(i+1)+":"+pv[i]+", ";
-        }
-        s=s+System.lineSeparator();
-        s=s+"Веса вершин:"+System.lineSeparator();
-
-        for (int i=0;i<vw.size();i++){
-            s=s+(i+1)+":"+vw.get(i)+", ";
-        }
-        JOptionPane.showMessageDialog(null,s);
-
+        JOptionPane.showMessageDialog(null, s);
 
 
     }
 
-    public void allDeikstra(){
-        int[][] ma=algorithm.DeikstraMatrix(getAdjacencyMatrix());
+    public void Eccentricity() {
+        EccentricityRD e = algorithm.EccentricityRD(getAdjacencyMatrix());
+        int d = e.GetDiametr();
+        int r = e.GetRadius();
+        int[] pv = e.GetPowerVertex();
+        ArrayList<Integer> vw = e.GetVertexWeight();
+        String s = "";
+
+        s = "Диаметр:" + d + System.lineSeparator();
+        s = s + "Радиус:" + r + System.lineSeparator();
+        s = s + "Вектор степней:" + System.lineSeparator();
+
+        for (int i = 0; i < pv.length; i++) {
+            s = s + (i + 1) + ":" + pv[i] + ", ";
+        }
+        s = s + System.lineSeparator();
+        s = s + "Веса вершин:" + System.lineSeparator();
+
+        for (int i = 0; i < vw.size(); i++) {
+            s = s + (i + 1) + ":" + vw.get(i) + ", ";
+        }
+        JOptionPane.showMessageDialog(null, s);
+
+
+    }
+
+    public void allDeikstra() {
+        int[][] ma = algorithm.DeikstraMatrix(getAdjacencyMatrix());
 
         //List<List<Integer>> listt =  Arrays.stream(ma).boxed().collect(Collectors.toList());
-        String s="";
+        String s = "";
 
-        for (int i=0;i<ma.length;i++){
-            for (int j=0;j<ma[i].length;j++){
-            if (ma[i][j]<1073741823){
-                s=s+" "+i;
-            }else{
-                s=s+" -1";
+        for (int i = 0; i < ma.length; i++) {
+            for (int j = 0; j < ma[i].length; j++) {
+                if (ma[i][j] < 1073741823) {
+                    s = s + " " + i;
+                } else {
+                    s = s + " -1";
+                }
             }
-            }
-            s=s+System.lineSeparator();
+            s = s + System.lineSeparator();
         }
-        JOptionPane.showMessageDialog(null,s);
+        JOptionPane.showMessageDialog(null, s);
     }
 
 
-    public void DeikstraAlg(){
-        int ver=0;
+    public void DeikstraAlg() {
+        int ver = 0;
         Object[] vs = gadap.getSelectionCells();
 
         Object[] verts = gadap.getChildVertices(gadap.getDefaultParent());
@@ -280,47 +280,41 @@ public class Graphp {
 
         int v1 = vertices.indexOf(vs[0]);
 
-        int[] path= algorithm.Deikstra(v1,getAdjacencyMatrix());
-        List<Integer> list =  Arrays.stream(path).boxed().collect(Collectors.toList());
+        int[] path = algorithm.Deikstra(v1, getAdjacencyMatrix());
+        List<Integer> list = Arrays.stream(path).boxed().collect(Collectors.toList());
 
         System.out.println(list.toString());
-        String s="";
-         for (int i=0;i<list.size();i++){
-             if (list.get(i)<1073741823){
-             s=s+System.lineSeparator()+i+"->"+list.get(i);
-             }else{
-                 s=s+System.lineSeparator()+(i+1)+"->нет пути";
-             }
-         }
-        JOptionPane.showMessageDialog(null,s);
+        String s = "";
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) < 1073741823) {
+                s = s + System.lineSeparator() + (i + 1) + "->" + list.get(i);
+            } else {
+                s = s + System.lineSeparator() + (i + 1) + "->нет пути";
+            }
+        }
+        JOptionPane.showMessageDialog(null, s);
 
     }
 
 
-
-    public void AStarDeep(){
-        ArrayList<ArrayList<Integer>> m= getAdjacencyMatrix();
+    public void AStarDeep() {
+        ArrayList<ArrayList<Integer>> m = getAdjacencyMatrix();
         Stack<Integer> stack1;
         Stack<Integer> stack2;
-
 
 
     }
 
 
     public Stack<Integer> stack;//
-    public int numberOfNodes=0;
-    public int depth=0;
-    public int maxDepth=0;
+    public int numberOfNodes = 0;
+    public int depth = 0;
+    public int maxDepth = 0;
     public boolean goalFound = false;
 
 
-
-
-
-    public void iterativeDeeping(ArrayList<ArrayList<Integer>> adjacencyMatrix,int source, int destination)
-    {
-        int adjacency_matrix[][] = new int[adjacencyMatrix.get(0).size()+1][adjacencyMatrix.get(0).size()+1];//[number_of_nodes + 1][number_of_nodes + 1];
+    public void iterativeDeeping(ArrayList<ArrayList<Integer>> adjacencyMatrix, int source, int destination) {
+        int adjacency_matrix[][] = new int[adjacencyMatrix.get(0).size() + 1][adjacencyMatrix.get(0).size() + 1];//[number_of_nodes + 1][number_of_nodes + 1];
         for (int i = 0; i < adjacencyMatrix.get(0).size(); i++)
             for (int j = 0; j < adjacencyMatrix.get(0).size(); j++)
                 adjacency_matrix[i][j] = adjacencyMatrix.get(i).get(j);//scanner.nextInt();
@@ -331,8 +325,7 @@ public class Graphp {
         /////////////////////////////////////////
         stack = new Stack<Integer>();
         numberOfNodes = adjacency_matrix[1].length - 1;
-        while (!goalFound&&maxDepth<=adjacencyMatrix.get(0).size())
-        {
+        while (!goalFound && maxDepth <= adjacencyMatrix.get(0).size()) {
             depthLimitedSearch(adjacency_matrix, 1, 2);//destination);
             maxDepth++;
         }
@@ -340,8 +333,7 @@ public class Graphp {
     }
 
 
-    private void depthLimitedSearch(int adjacencyMatrix[][], int source, int goal)
-    {
+    private void depthLimitedSearch(int adjacencyMatrix[][], int source, int goal) {
         int element, destination = 1;
         int[] visited = new int[numberOfNodes + 1];
         stack.push(source);
@@ -349,21 +341,16 @@ public class Graphp {
         System.out.println("\nAt Depth " + maxDepth);
         System.out.print(source + "\t");
 
-        while (!stack.isEmpty())
-        {
+        while (!stack.isEmpty()) {
             element = stack.peek();
-            while (destination <= numberOfNodes)
-            {
-                if (depth < maxDepth)
-                {
-                    if (adjacencyMatrix[element][destination] == 1)
-                    {
+            while (destination <= numberOfNodes) {
+                if (depth < maxDepth) {
+                    if (adjacencyMatrix[element][destination] == 1) {
                         stack.push(destination);
                         visited[destination] = 1;
                         System.out.print(destination + "\t");
                         depth++;
-                        if (goal == destination)
-                        {
+                        if (goal == destination) {
                             System.out.println("FIND!!!");
                             goalFound = true;
                             return;
@@ -372,8 +359,7 @@ public class Graphp {
                         destination = 1;
                         continue;
                     }
-                } else
-                {
+                } else {
 
                     break;
 
@@ -386,9 +372,7 @@ public class Graphp {
     }
 
 
-
-
-    public void DeepA(ArrayList<ArrayList<Integer>> adjacencyMatrix, int source, int goal){
+    public void DeepA(ArrayList<ArrayList<Integer>> adjacencyMatrix, int source, int goal) {
         int element, destination = 1;
         int[] visited = new int[numberOfNodes + 1];
         stack.push(source);
@@ -396,21 +380,16 @@ public class Graphp {
         System.out.println("\nAt Depth " + maxDepth);
         System.out.print(source + "\t");
 
-        while (!stack.isEmpty())
-        {
+        while (!stack.isEmpty()) {
             element = stack.peek();
-            while (destination <= numberOfNodes)
-            {
-                if (depth < maxDepth)
-                {
-                    if (adjacencyMatrix.get(element).get(destination) == 1)
-                    {
+            while (destination <= numberOfNodes) {
+                if (depth < maxDepth) {
+                    if (adjacencyMatrix.get(element).get(destination) == 1) {
                         stack.push(destination);
                         visited[destination] = 1;
                         System.out.print(destination + "\t");
                         depth++;
-                        if (goal == destination)
-                        {
+                        if (goal == destination) {
                             goalFound = true;
                             return;
                         }
@@ -418,8 +397,7 @@ public class Graphp {
                         destination = 1;
                         continue;
                     }
-                } else
-                {
+                } else {
                     break;
                 }
                 destination++;
@@ -1084,7 +1062,7 @@ public class Graphp {
     // Сохранить ребра в файл вида
     // Edges{i(a, k, l, d), . . .}, где i — номер ребра, a — вес ребра,
     // k и l — номера или имена вершин, d — может быть 1 если направлено
-    private void saveEdgesListToFile(ArrayList<mxCell> objs, String filename){
+    private void saveEdgesListToFile(ArrayList<mxCell> objs, String filename) {
         String infile = "";
         for (int i = 0; i < objs.size(); i++) {
             mxCell edge = (mxCell) objs.get(i);
