@@ -393,7 +393,7 @@ public class Algorithms {
             for (int i = 0; i < queue.size()-1; i++) {
                 for (int j = i; j < queue.size(); j++) {
                     forAnsw.add(queue.get(j));
-                    if (queue.get(i) == queue.get(i+1) && used[j]) {
+                    if (queue.get(i).equals(queue.get(i + 1)) && used[j]) {
                         forAnsw.add(queue.get(0));
                         return new CycleProblemAnswer(true, 0, 0, 0, forAnsw);
                     }
