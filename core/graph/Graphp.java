@@ -205,7 +205,7 @@ public class Graphp {
 
     public void Connectivity(boolean con) {
         ConnectivityGraph cg = algorithm.ConnectivityGraph(getAdjacencyMatrix(), con);
-        int b = cg.Bridge;
+        int b = cg.GetBridge();
         String c = cg.Connectivity;
         int h = cg.Hinge;
         ArrayList<ArrayList<Integer>> cc = cg.ConnectivityComponent;
@@ -257,7 +257,7 @@ public class Graphp {
         for (int i = 0; i < ma.length; i++) {
             for (int j = 0; j < ma[i].length; j++) {
                 if (ma[i][j] < 1073741823) {
-                    s = s + " " + i;
+                    s = s + " " + ma[i][j];
                 } else {
                     s = s + " -1";
                 }
