@@ -24,3 +24,11 @@
     * #### d - directed (всегда 1 - направлено, 0 - ненаправлено)
 * #### чтение графа из файлов
 * #### диалоги сохранения
+
+
+## Скриншоты
+![0](https://github.com/elizarpif/graph-laba/tree/updated/screens/graph0.jpg)
+
+![1](https://github.com/elizarpif/graph-laba/tree/updated/screens/graph1.jpg)
+
+![2](https://github.com/elizarpif/graph-laba/tree/updated/screens/graph2.jpg)
