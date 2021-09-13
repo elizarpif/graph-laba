@@ -28,14 +28,26 @@
 
 ## Скриншоты
 
-![graph 0](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph0.npg)
+добавить вершину
+
+![0](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph0.png)
+
+построить дополнение
 
 ![1](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph1.png)
 
+построенное дополнение
+
 ![2](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph2.png)
+
+круг
 
 ![0](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph3.png)
 
+A Star
+
 ![1](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph4.png)
+
+Маршрут по графу
 
 ![2](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph5.png)
