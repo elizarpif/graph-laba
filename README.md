@@ -27,14 +27,15 @@
 
 
 ## Скриншоты
-![0](https://github.com/elizarpif/graph-laba/tree/updated/screens/graph0.png)
 
-![1](https://github.com/elizarpif/graph-laba/tree/updated/screens/graph1.png)
+![graph 0](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph0.npg)
 
-![2](https://github.com/elizarpif/graph-laba/tree/updated/screens/graph2.png)
+![1](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph1.png)
 
-![0](https://github.com/elizarpif/graph-laba/tree/updated/screens/graph3.png)
+![2](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph2.png)
 
-![1](https://github.com/elizarpif/graph-laba/tree/updated/screens/graph4.png)
+![0](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph3.png)
 
-![2](https://github.com/elizarpif/graph-laba/tree/updated/screens/graph5.png)
+![1](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph4.png)
+
+![2](https://github.com/elizarpif/graph-laba/blob/updated/screens/graph5.png)
